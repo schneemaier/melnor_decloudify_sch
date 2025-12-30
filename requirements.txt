@@ -1,0 +1,2 @@
+aiohttp
+dnslib==0.9.26
