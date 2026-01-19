@@ -8,6 +8,7 @@ class Settings:
         self.port = 80
         self.mac = ""
         self.valveId = ""
+        self.valveId2 = ""
         self.disableDNS = False
         self.dnsForwarder = "8.8.8.8"
         self.bindDNS = "0.0.0.0"
@@ -21,6 +22,7 @@ class Settings:
                 self.port = data.get('port', self.port)
                 self.mac = data.get('mac', self.mac)
                 self.valveId = data.get('valveId', self.valveId)
+                self.valveId2 = data.get('valveId2', self.valveId2)
                 self.disableDNS = data.get('disableDNS', self.disableDNS)
                 self.dnsForwarder = data.get('dnsForwarder', self.dnsForwarder)
                 self.bindDNS = data.get('bindDNS', self.bindDNS)
