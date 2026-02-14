@@ -88,6 +88,7 @@ async def send_message(event, data, channel_id=None):
             'event': event,
             'data': str(data),
         })
+        ws_logger.debug(f"Test printout {payload}")
         for ws_client in clients:
             if not ws_client.closed:
                 ws_logger.debug(f"Sending message: {event} to broadcast")
