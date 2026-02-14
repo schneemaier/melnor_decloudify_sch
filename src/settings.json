@@ -1,6 +1,6 @@
 {
 	"enabled": true,
-	"port": 8080,
+	"port": 80,
 	"mac1": "d8:80:39:ae:57:61",
 	"valveId1.1": "<4 digit valve ID>",
 	"valveId1.2": "<4 digit valve ID>",
