@@ -358,11 +358,12 @@ async def app_handler(request):
     If it's a WebSocket upgrade request, it initiates the WebSocket connection.
     Otherwise, it returns a standard OK response.
     """
-    rest_logger.debug(f"New Pusher client request header: {request.headers}")
+    logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
         return await websocket_handler(request)
     else:
-        rest_logger.debug(f"New Pusher client connected: {request.query}")
+        #rest_logger.debug(f"New Pusher client connected: {request.query}")
+        logger.debug(f"New Pusher client connected: {request.query}")
         return web.Response(text='OK')
 
 async def websocket_handler(request):
@@ -435,8 +436,7 @@ def setup_routes(app):
     app.router.add_get('/submit', handle_submit)
 
     # Consolidated handler for /app/{key}
-    app.router.add_get('/app', app_handler)
-    #app.router.add_get('/app/{key}', app_handler)
+    app.router.add_get('/app/{key}', app_handler)
 
 async def start_web_server():
     app = web.Application()
