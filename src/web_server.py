@@ -379,6 +379,7 @@ async def websocket_handler(request):
     await msg_connection_established()
     try:
         ws_logger.debug(f"Starting Try")
+        ws_logger.debug(f"WS Message type {ws}")
         async for msg in ws:
             ws_logger.debug(f"Message type {msg.type}")
             if msg.type == WSMsgType.TEXT:
