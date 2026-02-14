@@ -377,8 +377,8 @@ async def websocket_handler(request):
     ws_logger.debug(f"New WS connection established from port id {port}")
 
     await msg_connection_established()
-    ws_logger.debug(f"Starting Try")
     try:
+        ws_logger.debug(f"Starting Try")
         async for msg in ws:
             ws_logger.debug(f"Message type {msg.type}")
             if msg.type == WSMsgType.TEXT:
@@ -411,6 +411,7 @@ async def websocket_handler(request):
                 ws_logger.error(f'ws connection closed with exception {ws.exception()}')
 
     finally:
+        ws_logger.debug(f"Try Failed....")
         clients.remove(ws)
         # Remove from channels if present
         for ch, socket in list(channels.items()):
@@ -438,6 +439,9 @@ def setup_routes(app):
 
     # Consolidated handler for /app/{key}
     app.router.add_get('/app/{key}', app_handler)
+
+    # Handle Websocket
+    app.router.add_get('/ws', websocket_handler)
 
 async def start_web_server():
     app = web.Application()
