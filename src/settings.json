@@ -1,10 +1,10 @@
 {
 	"enabled": true,
 	"port": 8080,
-	"mac1": "<YOUR DEV ID>",
+	"mac1": "d8:80:39:ae:57:61",
 	"valveId1.1": "<4 digit valve ID>",
 	"valveId1.2": "<4 digit valve ID>",
-	"mac2": "<YOUR DEV ID>",
+	"mac2": "54:10:ec:28:c5:9f",
 	"valveId2.1": "<4 digit valve ID>",
 	"valveId2.2": "<4 digit valve ID>",
 	"myIP": "192.168.0.1",
