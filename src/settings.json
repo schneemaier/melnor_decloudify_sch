@@ -1,0 +1,12 @@
+{
+	"enabled": true,
+	"port": 8080,
+	"mac1": "<YOUR DEV ID>",
+	"valveId1.1": "<4 digit valve ID>",
+	"valveId1.2": "<4 digit valve ID>",
+	"mac2": "<YOUR DEV ID>",
+	"valveId2.1": "<4 digit valve ID>",
+	"valveId2.2": "<4 digit valve ID>",
+	"myIP": "192.168.0.1",
+	"loglevel": "debug"
+}
