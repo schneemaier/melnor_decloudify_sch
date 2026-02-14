@@ -84,15 +84,15 @@ async def send_message(event, data, channel_id=None):
             ws_logger.debug(f"Sending message: {event} to channel {channel_id}")
             await ws_client.send_str(payload)
     else:
-        payload = json.dumps({
+        payload1 = json.dumps({
             'event': event,
-            'data': str(data),
+            'data': str(data)
         })
-        ws_logger.debug(f"Test printout {payload}")
+        ws_logger.debug(f"Test printout {payload1}")
         for ws_client in clients:
             if not ws_client.closed:
                 ws_logger.debug(f"Sending message: {event} to broadcast")
-                await ws_client.send_str(payload)
+                await ws_client.send_str(payload1)
 
 async def send_raw_message(msg):
     channel_id = settings.mac1.lower() #test
