@@ -337,7 +337,7 @@ async def handle_submit(request):
         logger.debug('Device sent revisions-E400.')
         return web.Response(text='OK')
 
-    if remote_id == 'ffffffffffff' or remote_id == settings.mac.lower():
+    if remote_id == 'ffffffffffff' or remote_id == settings.mac1.lower():
         update_states(bin_state)
         if connection_state == 0:
             online = True
@@ -358,6 +358,7 @@ async def app_handler(request):
     If it's a WebSocket upgrade request, it initiates the WebSocket connection.
     Otherwise, it returns a standard OK response.
     """
+    rest_logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
         return await websocket_handler(request)
     else:
@@ -375,12 +376,14 @@ async def websocket_handler(request):
     ws_logger.debug(f"New WS connection established from port id {port}")
 
     await msg_connection_established()
-
+    ws_logger.debug(f"Starting Try")
     try:
         async for msg in ws:
             if msg.type == WSMsgType.TEXT:
                 try:
+                    ws_logger.debug(f"Message type is text")
                     data = json.loads(msg.data)
+                    ws_logger.debug(f"Message is: {data}")
                     ws_logger.debug(f"New WS event {data.get('event')} for port id {port}")
 
                     if data.get('event') == 'pusher:ping':
