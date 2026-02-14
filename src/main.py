@@ -1,8 +1,8 @@
 import asyncio
 import logging
 import sys
-from src.settings import settings
-from src.web_server import start_web_server
+from settings import settings
+from web_server import start_web_server
 
 # Setup logging
 logging.basicConfig(

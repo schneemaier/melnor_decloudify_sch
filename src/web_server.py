@@ -6,7 +6,7 @@ import logging
 import asyncio
 import sys
 from aiohttp import web, WSMsgType
-from src.settings import settings
+from settings import settings
 
 logger = logging.getLogger("WEB")
 ws_logger = logging.getLogger("WS")
