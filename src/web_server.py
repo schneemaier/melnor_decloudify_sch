@@ -70,7 +70,7 @@ def update_states(bin_state):
 
 async def send_message(event, data, channel_id=None):
     if channel_id is None:
-        channel_id = settings.mac.lower()
+        channel_id = settings.mac1.lower()
 
     payload = json.dumps({
         'event': event,
@@ -90,7 +90,7 @@ async def send_message(event, data, channel_id=None):
                 await ws_client.send_str(payload)
 
 async def send_raw_message(msg):
-    channel_id = settings.mac.lower()
+    channel_id = settings.mac1.lower()
     if channel_id in channels:
         ws_client = channels[channel_id]
         if not ws_client.closed:
@@ -104,7 +104,7 @@ async def send_raw_message(msg):
 
 async def send_long_message(event, data, channel_id=None):
     if channel_id is None:
-        channel_id = settings.mac.lower()
+        channel_id = settings.mac1.lower()
 
     buffer = bytearray(134)
     try:
