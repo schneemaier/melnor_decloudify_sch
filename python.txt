@@ -1,0 +1,65 @@
+python
+from aiohttp import web
+
+# Store active connections
+clients = set()
+
+async def websocket_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
+    clients.add(ws)
+    try:
+        async for msg in ws:
+            if msg.type == web.WSMsgType.TEXT:
+                # To broadcast, loop through the set of clients
+                for client in clients:
+                    if not client.closed:
+                        await client.send_json({
+                            "event": "broadcast",
+                            "data": msg.data
+                        })
+    finally:
+        clients.remove(ws)
+    return ws
+
+app = web.Application()
+app.add_routes([web.get('/ws', websocket_handler)])
+web.run_app(app)
+
+
+
+python
+from aiohttp import web
+import socketio
+
+# 1. Initialize the Socket.IO async server
+# async_mode='aiohttp' ensures compatibility with the aiohttp framework
+sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins='*')
+app = web.Application()
+
+# 2. Attach the Socket.IO server to the aiohttp application
+sio.attach(app)
+
+# --- Event Handlers ---
+
+@sio.event
+async def connect(sid, environ):
+    print(f"Client connected: {sid}")
+    # Emit a welcome event back to ONLY this specific client
+    await sio.emit('welcome', {'message': 'Connected to Python server!'}, to=sid)
+
+@sio.on('chat_message')
+async def handle_message(sid, data):
+    print(f"Message from {sid}: {data}")
+
+    # Broadcast the message to ALL connected clients (similar to io.emit in Node.js)
+    await sio.emit('broadcast_response', {'user': sid, 'msg': data})
+
+@sio.event
+async def disconnect(sid):
+    print(f"Client disconnected: {sid}")
+
+# 3. Start the server
+if __name__ == '__main__':
+    web.run_app(app, port=8080)
