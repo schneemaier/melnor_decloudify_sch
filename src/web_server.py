@@ -90,7 +90,7 @@ async def send_message(event, data, channel_id=None):
                 await ws_client.send_str(payload)
 
 async def send_raw_message(msg):
-    channel_id = settings.mac1.lower()
+    channel_id = settings.mac1.lower() #test
     if channel_id in channels:
         ws_client = channels[channel_id]
         if not ws_client.closed:
