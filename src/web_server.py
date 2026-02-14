@@ -435,7 +435,8 @@ def setup_routes(app):
     app.router.add_get('/submit', handle_submit)
 
     # Consolidated handler for /app/{key}
-    app.router.add_get('/app/{key}', app_handler)
+    app.router.add_get('/app', app_handler)
+    #app.router.add_get('/app/{key}', app_handler)
 
 async def start_web_server():
     app = web.Application()
