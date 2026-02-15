@@ -363,7 +363,8 @@ async def app_handler(request):
     logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
         logger.debug(f"WebSocket upgrade request from : {request.remote}")
-        ws = web.WebSocketResponse()
+        web.Response(text='OK')
+        ws =  web.WebSocketResponse()
         await ws.prepare(request)
         #clients.add(ws)
         #ws_connected = True
