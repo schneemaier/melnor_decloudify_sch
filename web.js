@@ -352,6 +352,7 @@ function sendRawMessage(clients, msg) {
 }
 
 function sendMessage(clients, event, data, _channel = settings.mac.toLowerCase()) {
+    wslog.debug(clients, JSON.stringify({ event, data: `${data}` }));
     if (channels[_channel]) {
         const wsClient = channels[_channel];
         const { port } = wsClient._socket._peername;
