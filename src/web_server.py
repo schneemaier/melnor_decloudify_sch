@@ -86,7 +86,7 @@ async def send_message(event, data, channel_id=None):
             await ws_client.send_str(payload)
     else:
         payload1 = json.dumps({
-            'event': event,Test 
+            'event': event,
             'data': str(data)
         })
         ws_logger.debug(f"Test printout {payload1}")
