@@ -370,7 +370,7 @@ async def app_handler(request):
         port = request.transport.get_extra_info('peername')[1]
         ws_logger.debug(f"New WS connection established from port id {port}")
         await send_message('pusher:connection_established', '{"socket_id":"265216.826472"}')
-        return await web.Response(text='OK') #websocket_handler(request)
+        return web.Response(text='OK') #websocket_handler(request)
     else:
         #rest_logger.debug(f"New Pusher client connected: {request.query}")
         logger.debug(f"New Pusher client connected: {request.query}")
