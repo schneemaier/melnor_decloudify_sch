@@ -373,7 +373,7 @@ async def app_handler(request):
             'event': 'pusher:connection_established',
             'data': '{"socket_id":"265216.826472"}'
         })
-        await web.Response(text='OK')
+        web.Response(text='OK')
         return  await ws.send_str(payload1) #websocket_handler(request)
     else:
         #rest_logger.debug(f"New Pusher client connected: {request.query}")
