@@ -373,7 +373,7 @@ async def app_handler(request):
             'event': 'pusher:connection_established',
             'data': '{"socket_id":"265216.826472"}' #I think this defines the socket ID for the connection. Will have to be random number?
         })
-        await web.Response(text='OK')
+        # web.Response(text='OK')
         ws_logger.debug(f"Payload {payload1}")
         return await ws.send_str(payload1) #websocket_handler(request)
     else:
