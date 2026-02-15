@@ -362,9 +362,8 @@ async def app_handler(request):
     global ws_connected, online, sm
     logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
-        logger.debug(f"WebSocket upgrade request from : {request.remote_addr}")
-        #ws = web.WebSocketResponse()
-        #await ws.prepare(request)
+        ws = web.WebSocketResponse()
+        await ws.prepare(request)
         #clients.add(ws)
         #ws_connected = True
         port = request.transport.get_extra_info('peername')[1]
@@ -447,7 +446,7 @@ def setup_routes(app):
     app.router.add_get('/REST', handle_rest)
     app.router.add_get('/submit', handle_submit)
 
-    # Consolidated handler for /app/{key}
+    # Consolidated handler for /app/{key}web_server
     app.router.add_get('/app/{key}', app_handler)
 
     # Handle Websocket
