@@ -402,7 +402,7 @@ async def websocket_handler(request):
                     ws_logger.debug(f"Message type is text")
                     data = json.loads(msg.data)
                     ws_logger.debug(f"Message is: {data}")
-                    ws_logger.debug(f"New WS event {data.get('event')} for port id {port}")
+                    ws_logger.debug(f"New WS event {data.get('event')} for port     id {port}")
 
                     if data.get('event') == 'pusher:ping':
                         ws_logger.info('Received pusher ping on client')

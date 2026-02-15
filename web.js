@@ -362,10 +362,11 @@ function sendMessage(clients, event, data, _channel = settings.mac.toLowerCase()
         clients.forEach((wsClient) => {
             const { port } = wsClient._socket._peername;
             wslog.pending(`Sending new message 1: ${event} to ${wsClient._socket.remoteAddress.replace(/.*:/, '')} port ${port}`);
-            wslog.debug(JSON.stringify({ event, data: `${data}`, channel: channel.toLowerCase() }));
+            wslog.debug(JSON.stringify({ event, data: `${data}` }));
+            // , channel: channel.toLowerCase() }));
             wsClient.send(JSON.stringify({ event, data: `${data}` }));
             // , channel: channel.toLowerCase() }));
-        });
+        });Sending new message :
     }
 }
 
