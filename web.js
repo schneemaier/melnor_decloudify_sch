@@ -355,13 +355,13 @@ function sendMessage(clients, event, data, _channel = settings.mac.toLowerCase()
     if (channels[_channel]) {
         const wsClient = channels[_channel];
         const { port } = wsClient._socket._peername;
-        wslog.pending(`Sending new message : ${event} only to ${wsClient._socket.remoteAddress.replace(/.*:/, '')} port ${port}`);
+        wslog.pending(`Sending new message 0: ${event} only to ${wsClient._socket.remoteAddress.replace(/.*:/, '')} port ${port}`);
         wslog.debug(JSON.stringify({ event, data: `${data}`, channel: channel.toLowerCase() }));
         channels[channel].send(JSON.stringify({ event, data: `${data}`, channel: channel.toLowerCase() }));
     } else {
         clients.forEach((wsClient) => {
             const { port } = wsClient._socket._peername;
-            wslog.pending(`Sending new message : ${event} to ${wsClient._socket.remoteAddress.replace(/.*:/, '')} port ${port}`);
+            wslog.pending(`Sending new message 1: ${event} to ${wsClient._socket.remoteAddress.replace(/.*:/, '')} port ${port}`);
             wslog.debug(JSON.stringify({ event, data: `${data}`, channel: channel.toLowerCase() }));
             wsClient.send(JSON.stringify({ event, data: `${data}` }));
             // , channel: channel.toLowerCase() }));
