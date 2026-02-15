@@ -7,7 +7,7 @@ import asyncio
 import sys
 from aiohttp import web, WSMsgType
 from settings import settings
-import python-socketio as socketio
+import socketio
 
 logger = logging.getLogger("WEB")
 ws_logger = logging.getLogger("WS")
