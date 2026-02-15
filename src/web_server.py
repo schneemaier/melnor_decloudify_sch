@@ -371,7 +371,7 @@ async def app_handler(request):
         ws_logger.debug(f"New WS connection established from port id {port}")
         payload1 = json.dumps({
             'event': 'pusher:connection_established',
-            'data': '{"socket_id":"265216.826472"}'
+            'data': '{"socket_id":"265216.826472"}' #I think this defines the socket ID for the connection. Will have to be random number?
         })
         web.Response(text='OK')
         ws_logger.debug(f"Payload {payload1}")
@@ -461,11 +461,11 @@ def setup_routes(app):
 
 async def start_web_server():
     # 1. Initialize the Socket.IO async server
-    # async_mode='aiohttp' ensures compatibility with the aiohttp framework
-    # sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins='*')
+    async_mode='aiohttp' ensures compatibility with the aiohttp framework
+    sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins='*')
     app = web.Application()
     # 2. Attach the Socket.IO server to the aiohttp application
-    # sio.attach(app)
+    sio.attach(app)
 
     setup_routes(app)
     runner = web.AppRunner(app)

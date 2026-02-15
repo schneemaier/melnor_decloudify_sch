@@ -350,7 +350,7 @@ function sendRawMessage(clients, msg) {
         });
     }
 }
-
+ws
 function sendMessage(clients, event, data, _channel = settings.mac.toLowerCase()) {
     if (channels[_channel]) {
         const wsClient = channels[_channel];
@@ -363,8 +363,9 @@ function sendMessage(clients, event, data, _channel = settings.mac.toLowerCase()
             const { port } = wsClient._socket._peername;
             wslog.pending(`Sending new message : ${event} to ${wsClient._socket.remoteAddress.replace(/.*:/, '')} port ${port}`);
             wslog.debug(JSON.stringify({ event, data: `${data}`, channel: channel.toLowerCase() }));
-            wsClient.send(JSON.stringify({ event, data: `${data}`, channel: channel.toLowerCase() }));
-        });
+            wsClient.send(JSON.stringify({ event, data: `${data}` }));
+            // , channel: channel.toLowerCase() }));
+        });Send
     }
 }
 
