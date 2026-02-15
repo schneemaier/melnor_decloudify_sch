@@ -318,7 +318,7 @@ exports.start = function () {
         wss.handleUpgrade(req, socket, head, (ws) => {
             // const { port } = ws._socket._peername;
             msgConnectionEstablished();
-            wss.emit('connection', ws, req);
+            //wss.emit('connection', ws, req);
         });
     });
 };
