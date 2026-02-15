@@ -374,7 +374,7 @@ async def app_handler(request):
             'data':'{"socket_id":"265216.826472"}', #I think this defines the socket ID for the connection. Will have to be random number?
         }, separators=(',', ':'))
         # web.Response(text='OK')
-        ws_logger.debug(f"Payload {payload1}"
+        ws_logger.debug(f"Payload {payload1}")
         await ws.send_str(payload1)
         #await ws.send_json({'event':'pusher:connection_established','data':'{"socket_id":"265216.826472"}'})
         #"{'event': 'pusher:connection_established','data': '{"socket_id":"265216.826472"}'
