@@ -461,7 +461,7 @@ def setup_routes(app):
 
 async def start_web_server():
     # 1. Initialize the Socket.IO async server
-    async_mode='aiohttp' ensures compatibility with the aiohttp framework
+    # async_mode='aiohttp' ensures compatibility with the aiohttp framework
     sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins='*')
     app = web.Application()
     # 2. Attach the Socket.IO server to the aiohttp application
