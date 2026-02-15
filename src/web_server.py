@@ -371,12 +371,11 @@ async def app_handler(request):
         ws_logger.debug(f"New WS connection established from port id {port}")
         payload1 = json.dumps({
             'event':'pusher:connection_established',
-            'data':'{"socket_id":"265216.826472"}' #I think this defines the socket ID for the connection. Will have to be random number?
-        })
+            'data':'{"socket_id":"265216.826472"}', #I think this defines the socket ID for the connection. Will have to be random number?
+        }, separators=(',', ':'))
         # web.Response(text='OK')
-        ws_logger.debug(f"Payload {payload1}")
-        minified_json = json.dumps(payload1, separators=(',', ':'))
-        await ws.send_str(minified_json)
+        ws_logger.debug(f"Payload {payload1}"
+        await ws.send_str(payload1)
         #await ws.send_json({'event':'pusher:connection_established','data':'{"socket_id":"265216.826472"}'})
         #"{'event': 'pusher:connection_established','data': '{"socket_id":"265216.826472"}'
         return #web.Response(text='OK') #websocket_handler(request)
