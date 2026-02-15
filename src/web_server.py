@@ -71,8 +71,9 @@ def update_states(bin_state):
 
 async def send_message(event, data, channel_id=None):
     if channel_id is None:
+        ws_logger.debug(f"Channel is none")
         channel_id = settings.mac1.lower()
-
+    ws_logger.debug(f"Channel {channel_id}")
     payload = json.dumps({
         'event': event,
         'data': str(data),
@@ -405,18 +406,19 @@ async def websocket_handler(request):
                     ws_logger.debug(f"Message type is text")
                     data = json.loads(msg.data)
                     ws_logger.debug(f"Message is: {data}")
-                    ws_logger.debug(f"New WS event {data.get('event')} for port     id {port}")
+                    ws_logger.debug(f"New WS event {data.get('event')} for portid {port}")
 
                     if data.get('event') == 'pusher:ping':
-                        ws_logger.info('Received pusher ping on client')
-                        await send_message('pusher:pong', '{}', settings.mac1.lower())
+                        ws_logger.info(f'Received pusher ping on client {data}')
+                        channel_name = data.get('data', {}).get('channel')
+                        await send_message('pusher:pong', '{}', channel_name) #settings.mac1.lower())
 
                     elif data.get('event') == 'pusher:subscribe':
                         channel_name = data.get('data', {}).get('channel')
                         ws_logger.info(f"Received subscribe request for channel {channel_name}")
                         channels[channel_name] = ws
 
-                        await send_message('pusher_internal:subscription_succeeded', '{}', settings.mac1.lower())
+                        await send_message('pusher_internal:subscription_succeeded', '{}', channel_name) #settings.mac1.lower())
                         online = False
                         sm = 0
 
