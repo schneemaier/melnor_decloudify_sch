@@ -86,7 +86,7 @@ async def send_message(event, data, channel_id=None):
             await ws_client.send_str(payload)
     else:
         payload1 = json.dumps({
-            'event': event,
+            'event': event,Test 
             'data': str(data)
         })
         ws_logger.debug(f"Test printout {payload1}")
@@ -352,7 +352,7 @@ async def handle_submit(request):
         logger.info(f"Device in unknown state {remote_id}")
 
     return web.Response(text='OK')
-
+0
 async def app_handler(request):
     """
     Handles requests to /app/{key}.
@@ -369,7 +369,11 @@ async def app_handler(request):
         #ws_connected = True
         port = request.transport.get_extra_info('peername')[1]
         ws_logger.debug(f"New WS connection established from port id {port}")
-        await send_message('pusher:connection_established', '{"socket_id":"265216.826472"}')
+        payload1 = json.dumps({
+            'event': 'pusher:connection_established',
+            'data': '{"socket_id":"265216.826472"}'
+        })
+        await ws.send_str(payload1)
         return web.Response(text='OK') #websocket_handler(request)
     else:
         #rest_logger.debug(f"New Pusher client connected: {request.query}")
