@@ -370,8 +370,8 @@ async def app_handler(request):
         port = request.transport.get_extra_info('peername')[1]
         ws_logger.debug(f"New WS connection established from port id {port}")
         payload1 = json.dumps({
-            'event': 'pusher:connection_established',
-            'data': '{"socket_id":"265216.826472"}' #I think this defines the socket ID for the connection. Will have to be random number?
+            'event':'pusher:connection_established',
+            'data':'{"socket_id":"265216.826472"}' #I think this defines the socket ID for the connection. Will have to be random number?
         })
         # web.Response(text='OK')
         ws_logger.debug(f"Payload {payload1}")
