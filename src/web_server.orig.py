@@ -362,11 +362,11 @@ async def app_handler(request):
     global ws_connected, online, sm
     logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
-        ws = web.WebSocketResponse()
-        await ws.prepare(request)
+        #ws = web.WebSocketResponse()
+        #await ws.prepare(request)
         #clients.add(ws)
         #ws_connected = True
-        port = request.transport.get_extra_info('peername')[1]
+        #port = request.transport.get_extra_info('peername')[1]
         ws_logger.debug(f"New WS connection established from port id {port}")
         return await websocket_handler(request)
     else:

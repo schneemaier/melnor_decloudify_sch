@@ -77,7 +77,7 @@ async def send_message(event, data, channel_id=None):
         'event': event,
         'data': str(data),
         'channel': channel_id
-    })
+    }, separators=(',', ':'))
 
     if channel_id in channels:
         ws_client = channels[channel_id]
@@ -88,7 +88,7 @@ async def send_message(event, data, channel_id=None):
         payload1 = json.dumps({
             'event': event,
             'data': str(data)
-        })
+        }, separators=(',', ':'))
         ws_logger.debug(f"Test printout {payload1}")
         for ws_client in clients:
             if not ws_client.closed:
@@ -363,22 +363,22 @@ async def app_handler(request):
     logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
         logger.debug(f"WebSocket upgrade request from : {request.remote}")
-        ws =  web.WebSocketResponse()
-        await ws.prepare(request)
-        clients.add(ws)
-        ws_connected = True
+        #ws =  web.WebSocketResponse()
+        #await ws.prepare(request)
+        #clients.add(ws)
+        #ws_connected = True
         port = request.transport.get_extra_info('peername')[1]
         ws_logger.debug(f"New WS connection established from port id {port}")
-        payload1 = json.dumps({
-            'event':'pusher:connection_established',
-            'data':'{"socket_id":"265216.826472"}', #I think this defines the socket ID for the connection. Will have to be random number?
-        }, separators=(',', ':'))
+        #payload1 = json.dumps({
+        #    'event':'pusher:connection_established',
+        #    'data':'{"socket_id":"265216.826472"}', #I think this defines the socket ID for the connection. Will have to be random number?
+        #}, separators=(',', ':'))
         # web.Response(text='OK')
-        ws_logger.debug(f"Payload {payload1}")
-        await ws.send_str(payload1)
+        #ws_logger.debug(f"Payload {payload1}")
+        #await ws.send_str(payload1)
         #await ws.send_json({'event':'pusher:connection_established','data':'{"socket_id":"265216.826472"}'})
         #"{'event': 'pusher:connection_established','data': '{"socket_id":"265216.826472"}'
-        return #web.Response(text='OK') #websocket_handler(request)
+        return websocket_handler(request) #web.Response(text='OK') #websocket_handler(request)
     else:
         #rest_logger.debug(f"New Pusher client connected: {request.query}")
         logger.debug(f"New Pusher client connected: {request.query}")
@@ -389,14 +389,14 @@ async def websocket_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
-    #clients.add(ws)
-    #ws_connected = True
+    clients.add(ws)
+    ws_connected = True
     port = request.transport.get_extra_info('peername')[1]
     ws_logger.debug(f"New WS connection established from port id {port}")
 
     await msg_connection_established()
     try:
-        ws_logger.debug(f"Starting Try")
+        ws_logger.debug(f"Starting Try") as it never rece
         ws_logger.debug(f"WS Message: {ws}")
         async for msg in ws:
             ws_logger.debug(f"Message type {msg.type}")
