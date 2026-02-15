@@ -376,7 +376,7 @@ async def app_handler(request):
         # web.Response(text='OK')
         ws_logger.debug(f"Payload {payload1}")
         await ws.send_str(payload1)
-        return await web.Response(text='OK') #websocket_handler(request)
+        return web.Response(text='OK') #websocket_handler(request)
     else:
         #rest_logger.debug(f"New Pusher client connected: {request.query}")
         logger.debug(f"New Pusher client connected: {request.query}")
