@@ -268,6 +268,7 @@ async def handle_submit(request):
 
     # Extract idhash from query string manually because aiohttp might interpret it differently?
     # Original: /submit/?idhash=xxxx&message=<base64>
+    logger.info(f"Submit.")
     id_hash = request.query.get('idhash', '').replace("'", "")
     message = request.query.get('message', '')
 
