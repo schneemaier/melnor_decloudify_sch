@@ -350,7 +350,7 @@ function sendRawMessage(clients, msg) {
         });
     }
 }
-ws
+
 function sendMessage(clients, event, data, _channel = settings.mac.toLowerCase()) {
     if (channels[_channel]) {
         const wsClient = channels[_channel];
