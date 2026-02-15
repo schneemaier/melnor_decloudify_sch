@@ -365,7 +365,7 @@ function sendMessage(clients, event, data, _channel = settings.mac.toLowerCase()
             wslog.debug(JSON.stringify({ event, data: `${data}`, channel: channel.toLowerCase() }));
             wsClient.send(JSON.stringify({ event, data: `${data}` }));
             // , channel: channel.toLowerCase() }));
-        });Send
+        });
     }
 }
 
