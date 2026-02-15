@@ -364,7 +364,7 @@ async def app_handler(request):
     if request.headers.get('Upgrade', '').lower() == 'websocket':
         logger.debug(f"WebSocket upgrade request from : {request.remote}")
         ws = web.WebSocketResponse()
-        #await ws.prepare(request)
+        await ws.prepare(request)
         #clients.add(ws)
         #ws_connected = True
         port = request.transport.get_extra_info('peername')[1]
