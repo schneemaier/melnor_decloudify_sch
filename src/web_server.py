@@ -365,8 +365,8 @@ async def app_handler(request):
         logger.debug(f"WebSocket upgrade request from : {request.remote}")
         ws =  web.WebSocketResponse()
         await ws.prepare(request)
-        #clients.add(ws)
-        #ws_connected = True
+        clients.add(ws)
+        ws_connected = True
         port = request.transport.get_extra_info('peername')[1]
         ws_logger.debug(f"New WS connection established from port id {port}")
         payload1 = json.dumps({
@@ -389,8 +389,8 @@ async def websocket_handler(request):
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
-    clients.add(ws)
-    ws_connected = True
+    #clients.add(ws)
+    #ws_connected = True
     port = request.transport.get_extra_info('peername')[1]
     ws_logger.debug(f"New WS connection established from port id {port}")
 
@@ -465,10 +465,10 @@ def setup_routes(app):
 async def start_web_server():
     # 1. Initialize the Socket.IO async server
     # async_mode='aiohttp' ensures compatibility with the aiohttp framework
-    sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins='*')
+    #sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins='*')
     app = web.Application()
     # 2. Attach the Socket.IO server to the aiohttp application
-    sio.attach(app)
+    #sio.attach(app)
 
     setup_routes(app)
     runner = web.AppRunner(app)
