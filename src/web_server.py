@@ -7,7 +7,7 @@ import asyncio
 import sys
 from aiohttp import web, WSMsgType
 from settings import settings
-import socketio
+import python-socketio as socketio
 
 logger = logging.getLogger("WEB")
 ws_logger = logging.getLogger("WS")
@@ -362,7 +362,7 @@ async def app_handler(request):
     global ws_connected, online, sm
     logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
-        logger.debug(f"WebSocket upgrade request from : {request.remote_addr}")
+        logger.debug(f"WebSocket upgrade request from : {request.remote}")
         #ws = web.WebSocketResponse()
         #await ws.prepare(request)
         #clients.add(ws)

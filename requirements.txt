@@ -1,2 +1,3 @@
 aiohttp
-dnslib==0.9.26
+#dnslib==0.9.26
+python-socketio
