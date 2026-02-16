@@ -6,10 +6,14 @@ import logging
 import asyncio
 import sys
 
+# The melnor client adds 22 extra bytes to the submit messages, which breaks the standard aiohttp decoder
+# This flag enables the use of a less restrictiveó, but slover decoder
 os.environ['AIOHTTP_NO_EXTENSIONS'] = '1'
 
 from aiohttp import web, WSMsgType
 from settings import settings
+
+# probably no longer needed
 import socketio
 
 logger = logging.getLogger("WEB")
@@ -281,10 +285,14 @@ async def handle_submit(request):
         ack_type = message.replace('ascii--', '').replace('--ack--null', '')
         logger.info(f"Device sent event ack for {ack_type} device time : {remote_stamp}.")
         bin_state = bytearray(18)
+    # handle revision message which otherwise creates a decode error
+    elif message.startswith('ascii--'):
+        ack_type = message.replace('ascii--', '')
+        logger.info(f"Device sent event ack for {ack_type} device time : {remote_stamp}.")
+        bin_state = bytearray(18)
     else:
         # Some padding might be needed for base64 decoding if not valid
         # Python's base64 module is strict about padding
-        padded_message = message + '=' * (-len(message) % 4)
         try:
             bin_state = base64.b64decode(padded_message)
         except Exception as e:
