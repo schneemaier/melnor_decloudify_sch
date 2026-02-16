@@ -5,6 +5,9 @@ import struct
 import logging
 import asyncio
 import sys
+
+os.environ['AIOHTTP_NO_EXTENSIONS'] = '1'
+
 from aiohttp import web, WSMsgType
 from settings import settings
 import socketio
