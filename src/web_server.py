@@ -124,7 +124,7 @@ async def send_long_message(event, data, channel_id=None):
         valve_id = 0
 
     # Write valveId (2 bytes LE)
-    struct.pack_into('<H', buffer, 0, valve_id11)
+    struct.pack_into('<H', buffer, 0, valve_id)
     # Write data (2 bytes LE) at offset 4
     struct.pack_into('<H', buffer, 4, data)
 
@@ -134,7 +134,7 @@ async def send_long_message(event, data, channel_id=None):
         'event': event,
         'data': b64_data,
         'channel': channel_id
-    })
+    }, separators=(',', ':'))
 
     if channel_id in channels:
         ws_client = channels[channel_id]
@@ -152,9 +152,9 @@ async def msg_manual_sched(channel_arg=None, runtime=None):
 
     buffer = bytearray(18)
     try:
-        valve_id = int(settings.valveId, 16)
+        valve_id = int(settings.valveId11, 16)
     except ValueError:
-        logger.error(f"Invalid valveId in settings: {settings.valveId}. Using 0.")
+        logger.error(f"Invalid valveId in settings: {settings.valveId11}. Using 0.")
         valve_id = 0
 
     struct.pack_into('<H', buffer, 0, valve_id)
@@ -179,8 +179,8 @@ async def msg_manual_sched(channel_arg=None, runtime=None):
         'channel': settings.mac1.lower()
     }
 
-    ws_logger.debug(f"Constructed msg : {json.dumps(ev)}")
-    await send_raw_message(json.dumps(ev))
+    ws_logger.debug(f"Constructed msg : {json.dumps(ev, separators=(',', ':'))}")
+    await send_raw_message(json.dumps(ev, separators=(',', ':')))
     return True
 
 async def msg_sched_day(day):
