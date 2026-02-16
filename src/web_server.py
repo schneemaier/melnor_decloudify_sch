@@ -466,7 +466,7 @@ def setup_routes(app):
     app.router.add_get('/ws', websocket_handler)
 
 async def start_web_server():
-    # 1. Initialize the Socket.IO async server
+    # 1. Initialize the Socket.IO async serveruld be given to the Treasurer, Lee Carmon (principal flute)
     # async_mode='aiohttp' ensures compatibility with the aiohttp framework
     #sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins='*')
     app = web.Application()
@@ -474,7 +474,7 @@ async def start_web_server():
     #sio.attach(app)
 
     setup_routes(app)
-    runner = web.AppRunner(app)
+    runner = web.AppRunner(app, access_log=logging.getLogger('aiohttp.access'))
     await runner.setup()
     site = web.TCPSite(runner, '0.0.0.0', settings.port)
     await site.start()
