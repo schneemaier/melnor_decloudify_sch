@@ -286,11 +286,11 @@ async def handle_submit(request):
         logger.info(f"Device sent event ack for {ack_type} device time : {remote_stamp}.")
         bin_state = bytearray(18)
     # handle revision message which otherwise creates a decode error
-    elif message.startswith('ascii--re'):
-        logger.info(f"Device sent: {message}.")
-        ack_type = message.replace('ascii--', '')
-        logger.info(f"Device sent event ack for {ack_type} device time : {remote_stamp}.")
-        bin_state = bytearray(18)
+    #elif message.startswith('ascii--re'):
+    #    logger.info(f"Device sent: {message}.")
+    #    ack_type = message.replace('ascii--', '')
+    #    logger.info(f"Device sent event ack for {ack_type} device time : {remote_stamp}.")
+    #    bin_state = bytearray(18)
     else:
         # Some padding might be needed for base64 decoding if not valid
         # Python's base64 module is strict about padding
