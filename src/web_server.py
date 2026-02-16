@@ -402,7 +402,7 @@ async def app_handler(request):
 
 async def websocket_handler(request):
     global ws_connected, online, sm
-    ws = web.WebSocketResponse()
+    ws = web.WebSocketResponse(heartbeat=30.0)
     await ws.prepare(request)
 
     clients.add(ws)
