@@ -118,13 +118,13 @@ async def send_long_message(event, data, channel_id=None):
 
     buffer = bytearray(134)
     try:
-        valve_id = int(settings.valveId, 16)
+        valve_id = int(settings.valveId11, 16)
     except ValueError:
-        logger.error(f"Invalid valveId in settings: {settings.valveId}. Using 0.")
+        logger.error(f"Invalid valveId in settings: {settings.valveId11}. Using 0.")
         valve_id = 0
 
     # Write valveId (2 bytes LE)
-    struct.pack_into('<H', buffer, 0, valve_id)
+    struct.pack_into('<H', buffer, 0, valve_id11)
     # Write data (2 bytes LE) at offset 4
     struct.pack_into('<H', buffer, 4, data)
 
