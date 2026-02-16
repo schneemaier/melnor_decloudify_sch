@@ -13,7 +13,7 @@ from settings import settings
 import socketio
 
 logger = logging.getLogger("WEB")
-ws_logger = logging.getLogger("WS")
+ws_logger = logging .getLogger("WS")
 rest_logger = logging.getLogger("REST")
 
 # Global state
@@ -460,7 +460,7 @@ def setup_routes(app):
          logger.warning("Web directory not found. Static files will not be served.")
 
     app.router.add_get('/REST', handle_rest)
-    app.router.add_get('/submit', handle_submit)
+    app.router.add_get('/submit/', handle_submit)
 
     # Consolidated handler for /app/{key}
     app.router.add_get('/app/{key}', app_handler)
