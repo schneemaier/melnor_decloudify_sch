@@ -193,8 +193,8 @@ async def msg_timestamp(time, extra=0):
 
     await send_message('timestamp', base64.b64encode(b).decode('utf-8'))
 
-async def msg_hashkey(key):
-    await send_message('hash_key', f'"{key}"')
+async def msg_hashkey(key, channel):
+    await send_message('hash_key', f'"{key}"', channel)
 
 async def msg_rev_req():
     await send_message('rev_request', '')
@@ -304,7 +304,7 @@ async def handle_submit(request):
              remote_stamp = bin_state[8] + (bin_state[9] * 256)
              time_stamp = remote_stamp
 
-        await msg_hashkey('53f574cb08')
+        await msg_hashkey('53f574cb08', remote_id)
         return web.Response(text='OK')
 
     if not ws_connected:
