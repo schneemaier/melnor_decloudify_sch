@@ -79,15 +79,14 @@ def update_states(bin_state):
 async def send_message(event, data, channel_id=None):
     if channel_id is None:
         ws_logger.debug(f"Channel is none")
-        channel_id = settings.mac1.lower()
+        #channel_id = settings.mac1.lower()
     ws_logger.debug(f"Channel {channel_id}")
-    payload = json.dumps({
-        'event': event,
-        'data': str(data),
-        'channel': channel_id
-    }, separators=(',', ':'))
-
-    if channel_id in channels:
+    if channel_id and channel_id in channels:
+        payload = json.dumps({
+            'event': event,
+            'data': str(data),
+            'channel': channel_id
+        }, separators=(',', ':'))
         ws_client = channels[channel_id]
         if not ws_client.closed:
             ws_logger.debug(f"Sending message: {event} to channel {channel_id}")
@@ -118,7 +117,8 @@ async def send_raw_message(msg):
 
 async def send_long_message(event, data, channel_id=None):
     if channel_id is None:
-        channel_id = settings.mac1.lower()
+        ws_logger.debug(f"Channel is none")
+        # channel_id = settings.mac1.lower()
 
     buffer = bytearray(134)
     try:
@@ -187,21 +187,21 @@ async def msg_manual_sched(channel_arg=None, runtime=None):
     await send_raw_message(json.dumps(ev, separators=(',', ':')))
     return True
 
-async def msg_sched_day(day):
-    await send_long_message(f"sched_day{day}", 0)
+async def msg_sched_day(day, channel):
+    await send_long_message(f"sched_day{day}", 0, channel)
 
-async def msg_timestamp(time, extra=0):
+async def msg_timestamp(time, extra=0, channel):
     b = bytearray(3)
     struct.pack_into('<H', b, 0, int(time))
     struct.pack_into('b', b, 2, 0)
 
-    await send_message('timestamp', base64.b64encode(b).decode('utf-8'))
+    await send_message('timestamp', base64.b64encode(b).decode('utf-8'), channel)
 
 async def msg_hashkey(key, channel):
     await send_message('hash_key', f'"{key}"', channel)
 
-async def msg_rev_req():
-    await send_message('rev_request', '')
+async def msg_rev_req(channel):
+    await send_message('rev_request', '', channel)
 
 async def msg_connection_established():
     await send_message('pusher:connection_established', '{"socket_id":"265216.826472"}')
@@ -324,7 +324,7 @@ async def handle_submit(request):
 
     # State Machine
     if sm < 7:
-        await msg_sched_day(sm)
+        await msg_sched_day(sm, remote_id)
         sm += 1
         return web.Response(text='OK')
 
@@ -334,12 +334,12 @@ async def handle_submit(request):
         return web.Response(text='OK')
 
     if sm == 8:
-        await msg_timestamp(time_stamp, 0x03)
+        await msg_timestamp(time_stamp, 0x03, remote_id)
         sm += 1
         return web.Response(text='OK')
 
     if sm == 9:
-        await msg_rev_req()
+        await msg_rev_req(remote_id)
         sm += 1
         return web.Response(text='OK')
 
@@ -379,21 +379,8 @@ async def app_handler(request):
     logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
         logger.debug(f"WebSocket upgrade request from : {request.remote}")
-        #ws =  web.WebSocketResponse()
-        #await ws.prepare(request)
-        #clients.add(ws)
-        #ws_connected = True
         port = request.transport.get_extra_info('peername')[1]
         ws_logger.debug(f"New WS connection established from port id {port}")
-        #payload1 = json.dumps({
-        #    'event':'pusher:connection_established',
-        #    'data':'{"socket_id":"265216.826472"}', #I think this defines the socket ID for the connection. Will have to be random number?
-        #}, separators=(',', ':'))
-        # web.Response(text='OK')
-        #ws_logger.debug(f"Payload {payload1}")
-        #await ws.send_str(payload1)
-        #await ws.send_json({'event':'pusher:connection_established','data':'{"socket_id":"265216.826472"}'})
-        #"{'event': 'pusher:connection_established','data': '{"socket_id":"265216.826472"}'
         return await websocket_handler(request) #web.Response(text='OK') #websocket_handler(request)
     else:
         #rest_logger.debug(f"New Pusher client connected: {request.query}")
