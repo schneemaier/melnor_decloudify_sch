@@ -12,6 +12,7 @@ os.environ['AIOHTTP_NO_EXTENSIONS'] = '1'
 
 from aiohttp import web, WSMsgType
 from settings import settings
+from valveSettings import valveSettings
 
 # probably no longer needed
 import socketio
@@ -25,7 +26,7 @@ valves = [0] * 8
 reported_valves = [0] * 8
 time_stamp = 0
 remote_stamp = 0
-ws_connected = False
+ws_connected_old = False
 online = False
 connection_state = 2
 battery_percent = "?"
@@ -50,6 +51,8 @@ states = {
 # WebSocket Clients
 clients = set()
 channels = {} # Map channel (MAC) to websocket connection
+ws_connected = {} #Map channek (MAC) to connection stattus
+hashkey = {} #Map channel (MAC) to hash keys
 
 # --- Helper Functions ---
 
@@ -315,10 +318,13 @@ async def handle_submit(request):
              remote_stamp = bin_state[8] + (bin_state[9] * 256)
              time_stamp = remote_stamp
 
-        await msg_hashkey('53f574cb08', remote_id)
+        #await msg_hashkey('53f574cb08', remote_id)
+        await msg_hashkey(remote_id[-10:], remote_id)
+        hashkey[remote_id] = remote_id[-10:]
         return web.Response(text='OK')
 
-    if not ws_connected:
+    #if not ws_connected_old:
+    if remote_id not in ws_connected  or not ws_connected[remote_id]:
         ws_logger.error('Device not in sync. Please reset or wait.')
         return web.Response(text='OK')
 
@@ -375,7 +381,7 @@ async def app_handler(request):
     If it's a WebSocket upgrade request, it initiates the WebSocket connection.
     Otherwise, it returns a standard OK response.
     """
-    global ws_connected, online, sm
+    global ws_connected, online, sm, ws_connected_old
     logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
         logger.debug(f"WebSocket upgrade request from : {request.remote}")
@@ -388,12 +394,13 @@ async def app_handler(request):
         return web.Response(text='OK')
 
 async def websocket_handler(request):
-    global ws_connected, online, sm
+    global ws_connected, online, sm, ws_connected_old
     ws = web.WebSocketResponse(heartbeat=30.0)
     await ws.prepare(request)
 
     clients.add(ws)
-    ws_connected = True
+    ws_connected_old = True
+    ws_connected[remote_id] = True
     port = request.transport.get_extra_info('peername')[1]
     ws_logger.debug(f"New WS connection established from port id {port}")
 
