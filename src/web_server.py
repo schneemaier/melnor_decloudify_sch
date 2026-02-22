@@ -354,7 +354,7 @@ async def handle_submit(request):
         now = datetime.now()
         minutes_of_day = now.hour * 60 + now.minute
         #await msg_timestamp(time_stamp, 0x03, remote_id)
-        await msg_timestamp(minutes_of_day, now.weekday, remote_id)
+        await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
         sm += 1
         return web.Response(text='OK')
 
