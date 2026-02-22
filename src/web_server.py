@@ -370,11 +370,12 @@ async def handle_submit(request):
     if message.startswith('ascii--revisions--'):
         logger.debug(f'Device sent revisions: {ack_type[12:]}')
         return web.Response(text='OK')
-o
+
+    # Need fix multi mac address
     if remote_id == 'ffffffffffff' or remote_id == settings.mac1.lower():
         update_states(bin_state)
         if connection_state == 0:
-            online = True
+            online = True #need to change to support multi device
             logger.info(f"Device online ({remote_id})")
         else:
             logger.info(f"Device not online ({remote_id})")
