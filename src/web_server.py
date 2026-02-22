@@ -32,7 +32,7 @@ remote_stamp = 0
 ws_connected_old = False
 online_old = False
 connection_state_old = 2
-connection_state{}
+connection_state = {}
 battery_percent = "?"
 sm = 0
 iv = None
