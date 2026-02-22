@@ -408,7 +408,7 @@ async def websocket_handler(request):
 
     clients.add(ws)
     ws_connected_old = True
-    ws_connected[remote_id] = True
+
     port = request.transport.get_extra_info('peername')[1]
     ws_logger.debug(f"New WS connection established from port id {port}")
 
@@ -434,6 +434,7 @@ async def websocket_handler(request):
                         channel_name = data.get('data', {}).get('channel')
                         ws_logger.info(f"Received subscribe request for channel {channel_name}")
                         channels[channel_name] = ws
+                        ws_connected[channel_name] = True
 
                         await send_message('pusher_internal:subscription_succeeded', '{}', channel_name) #settings.mac1.lower())
                         online = False
