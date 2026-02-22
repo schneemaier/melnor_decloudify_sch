@@ -288,20 +288,16 @@ async def handle_submit(request):
     message = request.query.get('message', '')
 
     bin_state = None
-
+    logger.info(f"Device sent null: {message}.")
     if message.endswith('ack--null'):
-        logger.info(f"Device sent null: {message}.")
         ack_type = message.replace('ascii--', '').replace('--ack--null', '')
-        logger.info(f"Device sent event ack for {ack_type} device time : {remote_stamp}.")
-        logger.info(f"Hash key {id_hash} ")
-        #return web.Response(text='OK')
+        logger.info(f"Device sent ack--null event ack for {ack_type} device time : {remote_stamp}.")
         bin_state = bytearray(4)
     elif message.startswith('ascii--re'):
         # handle revision message which otherwise creates a decode error
-        logger.info(f"Device sent start: {message}.")
         ack_type = message.replace('ascii--', '')
-        logger.info(f"Device sent event ack for {ack_type} device time : {remote_stamp}.")
-        bin_state = bytearray(18)
+        logger.info(f"Device sent ascii-- event ack for {ack_type} device time : {remote_stamp}.")
+        bin_state = bytearray(4)
     else:
         # Some padding might be needed for base64 decoding if not valid
         # Python's base64 module is strict about padding
@@ -370,10 +366,11 @@ async def handle_submit(request):
         iv = asyncio.create_task(watchdog_loop())
         sm += 1
 
-    if message.startswith('ascii--revisions--E400'):
-        logger.debug('Device sent revisions-E400.')
+    #if message.startswith('ascii--revisions--E400'):
+    if message.startswith('ascii--revisions--'):
+        logger.debug(f'Device sent revisions: {ack_type[12:]}')
         return web.Response(text='OK')
-
+o
     if remote_id == 'ffffffffffff' or remote_id == settings.mac1.lower():
         update_states(bin_state)
         if connection_state == 0:
