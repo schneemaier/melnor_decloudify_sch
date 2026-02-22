@@ -317,7 +317,7 @@ async def handle_submit(request):
         remote_id = ''.join(f'{b:02x}' for b in reversed(bin_state[0:6]))
     else:
         remote_id = "000000000000"
-        remote_id = id_hash # use the hash if message is ascii--hashkeyevnt--ack--null otherwise cycle fails
+        remote_id = id_hash[:12] # use the hash if message is ascii--hashkeyevnt--ack--null otherwise cycle fails
 
     # First message from device check (id_hash is checked against '0000000000' etc)
     if id_hash == '0000000000' or id_hash == 'ffffffffff':
