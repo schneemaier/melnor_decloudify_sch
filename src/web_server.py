@@ -4,6 +4,8 @@ import base64
 import struct
 import logging
 import asyncio
+from calendar import weekday
+from datetime import datetime
 import sys
 
 # The melnor client adds 22 extra bytes to the submit messages, which breaks the standard aiohttp decoder
@@ -193,12 +195,15 @@ async def msg_manual_sched(channel_arg=None, runtime=None):
 async def msg_sched_day(day, channel):
     await send_long_message(f"sched_day{day}", 0, channel)
 
-async def msg_timestamp(time, extra=0, channel):
-    b = bytearray(3)
-    struct.pack_into('<H', b, 0, int(time))
-    struct.pack_into('b', b, 2, 0)
+#async def msg_timestamp(time, extra=0, channel=None):
+async def msg_timestamp(minutes_of_day, day_of_week, channel=None):
+    if channel is not None:
+        b = bytearray(3)
+        struct.pack_into('<H', b, 0, int(minutes_of_day))
+        #struct.pack_into('b', b, 2, 0)
+        struct.pack_into('b', b, 2, int(day_of_week))
 
-    await send_message('timestamp', base64.b64encode(b).decode('utf-8'), channel)
+        await send_message('timestamp', base64.b64encode(b).decode('utf-8'), channel)
 
 async def msg_hashkey(key, channel):
     await send_message('hash_key', f'"{key}"', channel)
@@ -340,7 +345,10 @@ async def handle_submit(request):
         return web.Response(text='OK')
 
     if sm == 8:
-        await msg_timestamp(time_stamp, 0x03, remote_id)
+        now = datetime.now()
+        minutes_of_day = now.hour * 60 + now.minute
+        #await msg_timestamp(time_stamp, 0x03, remote_id)
+        await msg_timestamp(minutes_of_day, weekday(now), remote_id)
         sm += 1
         return web.Response(text='OK')
 
