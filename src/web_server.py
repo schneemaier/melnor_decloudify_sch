@@ -4,9 +4,9 @@ import base64
 import struct
 import logging
 import asyncio
-from calendar import weekday
+#from calendar import weekday
 from datetime import datetime
-import sys
+#import sys
 
 # The melnor client adds 22 extra bytes to the submit messages, which breaks the standard aiohttp decoder
 # This flag enables the use of a less restrictiveó, but slover decoder
@@ -24,13 +24,15 @@ ws_logger = logging .getLogger("WS")
 rest_logger = logging.getLogger("REST")
 
 # Global state
+# needs update to multi controller support
 valves = [0] * 8
 reported_valves = [0] * 8
 time_stamp = 0
 remote_stamp = 0
 ws_connected_old = False
-online = False
-connection_state = 2
+online_old = False
+connection_state_old = 2
+connection_state{}
 battery_percent = "?"
 sm = 0
 iv = None
@@ -55,17 +57,18 @@ clients = set()
 channels = {} # Map channel (MAC) to websocket connection
 ws_connected = {} #Map channek (MAC) to connection stattus
 hashkey = {} #Map channel (MAC) to hash keys
+online = {} #Map channel (MAC) to status
 
 # --- Helper Functions ---
 
-def update_states(bin_state):
+def update_states(bin_state, remote_id):
     global remote_stamp, time_stamp, battery_percent, connection_state, reported_valves
 
     remote_stamp = bin_state[bin_fields['TIME_LOW']] + (bin_state[bin_fields['TIME_HIGH']] * 256)
     time_stamp = remote_stamp
     battery = bin_state[bin_fields['BATTERY']]
     battery_percent = battery * 1.4428 - 268
-    connection_state = bin_state[bin_fields['STATE']]
+    connection_state[remote_id] = bin_state[bin_fields['STATE']] # this needs to handle multiple valves
     buttons = bin_state[bin_fields['BUTTONS']]
 
     logger.info(f"Battery is roughly at {int(battery_percent)}%")
@@ -376,17 +379,18 @@ async def handle_submit(request):
         return web.Response(text='OK')
 
     # Need fix multi mac address
-    if remote_id == 'ffffffffffff' or remote_id == settings.mac1.lower():
-        update_states(bin_state)
-        if connection_state == 0:
-            online = True #need to change to support multi device
+    #if remote_id == 'ffffffffffff' or remote_id == settings.mac1.lower():
+    if remote_id in valveSettings.controllerMac:
+        update_states(bin_state, remote_id) # update to multi device
+        if connection_state[remote_id] == 0:
+            online[remote_id] = True #need to change to support multi device
             logger.info(f"Device online ({remote_id})")
         else:
             logger.info(f"Device not online ({remote_id})")
     elif remote_id == '000000000000':
         pass
     else:
-        online = True
+        online[remote_id] = True
         logger.info(f"Device in unknown state {remote_id}")
 
     return web.Response(text='OK')
@@ -445,7 +449,7 @@ async def websocket_handler(request):
                         ws_connected[channel_name] = True
 
                         await send_message('pusher_internal:subscription_succeeded', '{}', channel_name) #settings.mac1.lower())
-                        online = False
+                        online[channel_name] = False
                         sm = 0
 
                     else:
