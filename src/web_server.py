@@ -331,6 +331,7 @@ async def handle_submit(request):
     #if not ws_connected_old:
     if remote_id not in ws_connected  or not ws_connected[remote_id]:
         ws_logger.error('Device not in sync. Please reset or wait.')
+        ws_logger.error(f"remoteid: {remote_id}, WS_connected: {ws_connected}"
         return web.Response(text='OK')
 
     # State Machine
