@@ -293,6 +293,7 @@ async def handle_submit(request):
         logger.info(f"Device sent null: {message}.")
         ack_type = message.replace('ascii--', '').replace('--ack--null', '')
         logger.info(f"Device sent event ack for {ack_type} device time : {remote_stamp}.")
+        return web.Response(text='OK')
         bin_state = bytearray(18)
     elif message.startswith('ascii--re'):
         # handle revision message which otherwise creates a decode error
