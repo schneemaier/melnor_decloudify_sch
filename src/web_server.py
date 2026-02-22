@@ -295,7 +295,7 @@ async def handle_submit(request):
         logger.info(f"Device sent event ack for {ack_type} device time : {remote_stamp}.")
         logger.info(f"Hash key {id_hash} ")
         #return web.Response(text='OK')
-        bin_state = bytearray(18)
+        bin_state = bytearray(4)
     elif message.startswith('ascii--re'):
         # handle revision message which otherwise creates a decode error
         logger.info(f"Device sent start: {message}.")
@@ -329,7 +329,8 @@ async def handle_submit(request):
         #await msg_hashkey('53f574cb08', remote_id)
         #await msg_hashkey(remote_id[-10:], remote_id)
         await msg_hashkey(remote_id, remote_id)
-        hashkey[remote_id] = remote_id[-10:]
+        #hashkey[remote_id] = remote_id[-10:]
+        hashkey[remote_id] = remote_id
         return web.Response(text='OK')
 
     #if not ws_connected_old:
