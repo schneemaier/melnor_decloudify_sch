@@ -201,7 +201,7 @@ async def msg_timestamp(minutes_of_day, day_of_week, channel=None):
         b = bytearray(3)
         struct.pack_into('<H', b, 0, int(minutes_of_day))
         #struct.pack_into('b', b, 2, 0)
-        struct.pack_into('b', b, 2, int(day_of_week))
+        struct.pack_into('b', b, 2, day_of_week)
 
         await send_message('timestamp', base64.b64encode(b).decode('utf-8'), channel)
 
