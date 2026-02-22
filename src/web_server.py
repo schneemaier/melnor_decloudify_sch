@@ -368,7 +368,11 @@ async def handle_submit(request):
 
     #if message.startswith('ascii--revisions--E400'):
     if message.startswith('ascii--revisions--'):
-        logger.debug(f'Device sent revisions: {ack_type[12:]}')
+        logger.debug(f'Device sent revisions: {ack_type[11:]}')
+        return web.Response(text='OK')
+
+    if message.startswith('ascii--timestampevnt--'):
+        logger.debug('Device sent timestampevnt ack')
         return web.Response(text='OK')
 
     # Need fix multi mac address
