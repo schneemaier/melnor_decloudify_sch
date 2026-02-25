@@ -471,7 +471,7 @@ async def websocket_handler(request):
 
                         await send_message('pusher_internal:subscription_succeeded', '{}', channel_name) #settings.mac1.lower())
                         online[channel_name] = False
-                        sm = 0
+                        sm[channel_name] = 0
 
                     else:
                         ws_logger.error('I dont know how to handle this event.')
