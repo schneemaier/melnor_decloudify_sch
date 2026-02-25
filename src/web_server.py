@@ -360,16 +360,15 @@ async def handle_submit(request):
         return web.Response(text='OK')
 
     if sm == 8:
-        a = web.Response(text='OK')
-        while datetime.now().second > 5:
-            logger.debug(f'Waiting for time: {datetime.now().second}')
-            await asyncio.sleep(1)
+        #while datetime.now().second > 5:
+        #    logger.debug(f'Waiting for time: {datetime.now().second}')
+        #    await asyncio.sleep(1)
         now = datetime.now()
         minutes_of_day = now.hour * 60 + now.minute
         #await msg_timestamp(time_stamp, 0x03, remote_id)
         await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
         sm += 1
-        return a
+        return web.Response(text='OK')
 
     if sm == 9:
         await msg_rev_req(remote_id)
