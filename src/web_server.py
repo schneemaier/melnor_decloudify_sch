@@ -4,6 +4,7 @@ import base64
 import struct
 import logging
 import asyncio
+from collections import defaultdict
 #from calendar import weekday
 from datetime import datetime
 #import sys
@@ -17,7 +18,7 @@ from settings import settings
 from valveSettings import valveSettings
 
 # probably no longer needed
-import socketio
+#import socketio
 
 logger = logging.getLogger("WEB")
 ws_logger = logging .getLogger("WS")
@@ -54,7 +55,7 @@ states = {
 
 # WebSocket Clients
 clients = set()
-channels = {} # Map channel (MAC) to websocket connection
+channels = defaultdict(set) # Map channel (MAC) to set of websocket connections
 ws_connected = {} #Map channek (MAC) to connection stattus
 hashkey = {} #Map channel (MAC) to hash keys
 online = {} #Map channel (MAC) to status
@@ -95,10 +96,10 @@ async def send_message(event, data, channel_id=None):
             'data': str(data),
             'channel': channel_id
         }, separators=(',', ':'))
-        ws_client = channels[channel_id]
-        if not ws_client.closed:
-            ws_logger.debug(f"Sending message: {event} to channel {channel_id}")
-            await ws_client.send_str(payload)
+        ws_logger.debug(f"Sending message: {event} to channel {channel_id}")
+        for ws_client in channels[channel_id]:
+            if not ws_client.closed:
+                await ws_client.send_str(payload)
     else:
         payload1 = json.dumps({
             'event': event,
@@ -113,10 +114,10 @@ async def send_message(event, data, channel_id=None):
 async def send_raw_message(msg):
     channel_id = settings.mac1.lower() #test
     if channel_id in channels:
-        ws_client = channels[channel_id]
-        if not ws_client.closed:
-             ws_logger.debug(f"Sending RAW message to channel {channel_id}")
-             await ws_client.send_str(msg)
+        ws_logger.debug(f"Sending RAW message to channel {channel_id}")
+        for ws_client in channels[channel_id]:
+             if not ws_client.closed:
+                 await ws_client.send_str(msg)
     else:
         for ws_client in clients:
             if not ws_client.closed:
@@ -149,9 +150,9 @@ async def send_long_message(event, data, channel_id=None):
     }, separators=(',', ':'))
 
     if channel_id in channels:
-        ws_client = channels[channel_id]
-        if not ws_client.closed:
-             await ws_client.send_str(payload)
+        for ws_client in channels[channel_id]:
+             if not ws_client.closed:
+                 await ws_client.send_str(payload)
     else:
         for ws_client in clients:
             if not ws_client.closed:
@@ -449,7 +450,7 @@ async def websocket_handler(request):
                     elif data.get('event') == 'pusher:subscribe':
                         channel_name = data.get('data', {}).get('channel')
                         ws_logger.info(f"Received subscribe request for channel {channel_name}")
-                        channels[channel_name] = ws
+                        channels[channel_name].add(ws)
                         ws_connected[channel_name] = True
 
                         await send_message('pusher_internal:subscription_succeeded', '{}', channel_name) #settings.mac1.lower())
@@ -469,9 +470,11 @@ async def websocket_handler(request):
         ws_logger.debug(f"Try Failed....")
         clients.remove(ws)
         # Remove from channels if present
-        for ch, socket in list(channels.items()):
-            if socket == ws:
-                del channels[ch]
+        for ch, sockets in list(channels.items()):
+            if ws in sockets:
+                sockets.remove(ws)
+                if not sockets:
+                    del channels[ch]
         ws_logger.info('Websocket connection closed')
 
     return ws
