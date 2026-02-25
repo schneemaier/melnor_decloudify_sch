@@ -34,8 +34,8 @@ online_old = False
 connection_state_old = 2
 connection_state = {}
 battery_percent = "?"
-sm = 0
-iv = None
+sm = {}
+iv = {}
 
 bin_fields = {
     'DAY': 6,
@@ -226,7 +226,8 @@ async def msg_connection_established(ws):
         await ws.send_str(payload1)
     #await send_message('pusher:connection_established', '{"socket_id":"265216.826472"}')
 
-async def check_timeout():
+async def check_timeout(renote_id):
+    #need additon to enable multi controller
     global time_stamp
     #time_stamp += 1
     time_stamp = int(minutes_of_day)
@@ -340,26 +341,32 @@ async def handle_submit(request):
         await msg_hashkey(remote_id, remote_id)
         #hashkey[remote_id] = remote_id[-10:]
         hashkey[remote_id] = remote_id
+        # setup state machine
+        sm[remote_id] = 0
         return web.Response(text='OK')
 
     #if not ws_connected_old:
     if remote_id not in ws_connected  or not ws_connected[remote_id]:
         ws_logger.error('Device not in sync. Please reset or wait.')
         ws_logger.error(f"remoteid: {remote_id}, WS_connected: {ws_connected}")
+        sm[remote_id] = 0
         return web.Response(text='OK')
 
     # State Machine
-    if sm < 7:
-        await msg_sched_day(sm, remote_id)
-        sm += 1
+    # change state macine to dictionary to make it remote id dependent
+
+    if sm[remote_id] < 7:
+        await msg_sched_day(sm[remote_id], remote_id)
+        sm[remote_id] += 1
         return web.Response(text='OK')
 
-    if sm == 7:
+    if sm[remote_id] == 7:
+        # add remote id
         await msg_manual_sched(2, 20)
-        sm += 1
+        sm[remote_id] += 1
         return web.Response(text='OK')
 
-    if sm == 8:
+    if sm[remote_id] == 8:
         #while datetime.now().second > 5:
         #    logger.debug(f'Waiting for time: {datetime.now().second}')
         #    await asyncio.sleep(1)
@@ -367,20 +374,21 @@ async def handle_submit(request):
         minutes_of_day = now.hour * 60 + now.minute
         #await msg_timestamp(time_stamp, 0x03, remote_id)
         await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
-        sm += 1
+        sm[remote_id] += 1
         return web.Response(text='OK')
 
-    if sm == 9:
+    if sm[remote_id] == 9:
         await msg_rev_req(remote_id)
-        sm += 1
+        sm[remote_id] += 1
         return web.Response(text='OK')
 
-    if sm == 10:
-        if iv:
-            iv.cancel()
+    if sm[remote_id] == 10:
+        # iv has to be per remote id
+        if remote_id in iv:
+            iv[remote_id].cancel()
         # Start watchdog loop
-        iv = asyncio.create_task(watchdog_loop())
-        sm += 1
+        iv[remote_id] = asyncio.create_task(watchdog_loop(remote_id))
+        sm[remote_id] += 1
 
     #if message.startswith('ascii--revisions--E400'):
     if message.startswith('ascii--revisions--'):
@@ -485,10 +493,10 @@ async def websocket_handler(request):
 
     return ws
 
-async def watchdog_loop():
+async def watchdog_loop(remote_id):
     while True:
         await asyncio.sleep(60)
-        await check_timeout()
+        await check_timeout(remote_id)
 
 def setup_routes(app):
     app.router.add_get('/', index)
