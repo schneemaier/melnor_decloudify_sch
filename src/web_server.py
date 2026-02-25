@@ -85,6 +85,7 @@ def update_states(bin_state, remote_id):
     logger.info(f"BUTTONS: {reported_valves}")
 
 async def send_message(event, data, channel_id=None):
+    global channels
     if channel_id is None:
         ws_logger.debug(f"Channel is none")
         #channel_id = settings.mac1.lower()
@@ -105,7 +106,7 @@ async def send_message(event, data, channel_id=None):
             'data': str(data)
         }, separators=(',', ':'))
         ws_logger.debug(f"Test printout {payload1}")
-        for ws_client in clients:
+        for ws_client in clients: # needs update as it fails in multiple client case
             if not ws_client.closed:
                 ws_logger.debug(f"Sending message: {event} to broadcast")
                 await ws_client.send_str(payload1)
@@ -214,8 +215,16 @@ async def msg_hashkey(key, channel):
 async def msg_rev_req(channel):
     await send_message('rev_request', '', channel)
 
-async def msg_connection_established():
-    await send_message('pusher:connection_established', '{"socket_id":"265216.826472"}')
+async def msg_connection_established(ws):
+    payload1 = json.dumps({
+        'event': 'pusher:connection_established',
+        'data': '{"socket_id":"265216.826472"}'
+    }, separators=(',', ':'))
+    ws_logger.debug(f"Test printout {payload1}")
+    if not ws.closed:
+        ws_logger.debug(f"Sending message: {payload1} to broadcast")
+        await ws.send_str(payload1)
+    #await send_message('pusher:connection_established', '{"socket_id":"265216.826472"}')
 
 async def check_timeout():
     global time_stamp
@@ -428,7 +437,7 @@ async def websocket_handler(request):
     port = request.transport.get_extra_info('peername')[1]
     ws_logger.debug(f"New WS connection established from port id {port}")
 
-    await msg_connection_established()
+    await msg_connection_established(ws)
     try:
         ws_logger.debug(f"Starting Try")
         ws_logger.debug(f"WS Message: {ws}")
