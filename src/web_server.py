@@ -419,7 +419,7 @@ async def app_handler(request):
 
 async def websocket_handler(request):
     global ws_connected, online, sm, ws_connected_old
-    ws = web.WebSocketResponse(heartbeat=30.0)
+    ws = web.WebSocketResponse(heartbeat=90.0)
     await ws.prepare(request)
 
     clients.add(ws)
