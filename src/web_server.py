@@ -219,7 +219,8 @@ async def msg_connection_established():
 
 async def check_timeout():
     global time_stamp
-    time_stamp += 1
+    #time_stamp += 1
+    time_stamp = int(minutes_of_day)
     logger.debug(f"Watchdog : time:{time_stamp}/{remote_stamp}")
 
     dbg = ''
