@@ -204,7 +204,7 @@ async def msg_sched_day(day, channel):
         unit = 0
         for vUnit in valveSettings.valveUnits[channel]:
             # Write valveId (2 bytes LE)
-            struct.pack_into('<H', buffer, 0 + unit * 154, bytes.fromhex(vUnit[:2]) & bytes.fromhex(vUnit[-2:]))
+            struct.pack_into('<H', buffer, 0 + unit * 154, int(vUnit, 16))
             # Write data (2 bytes LE) at offset 4
             for v in range(0, 4):
                 #4 valves
