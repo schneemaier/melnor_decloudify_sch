@@ -5,7 +5,7 @@ import logging
 class Settings:
     def __init__(self, settings_path='settings.json'):
         self.enabled = True
-        self.port = 80
+        self.port = 80print(valveSettings.valveUnits)
         self.mac1 = ""
         self.valveId11 = ""
         self.valveId12 = ""

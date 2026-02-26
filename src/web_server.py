@@ -197,7 +197,39 @@ async def msg_manual_sched(channel_arg=None, runtime=None):
     return True
 
 async def msg_sched_day(day, channel):
-    await send_long_message(f"sched_day{day}", 0, channel)
+    global channels
+    # read and send the program to the controller
+    buffer = bytearray(308) # 2 * ( 2bytes valve ID + 4 * 38 bytes for valve schedule)
+    if channel in valveSettings.valveUnits:
+        unit = 0
+        for vUnit in valveSettings.valveUnits[channel]:
+            # Write valveId (2 bytes LE)
+            struct.pack_into('<H', buffer, 0 + unit * 154, bytes.fromhex(vUnit[:2]) & bytes.fromhex(vUnit[-2:]))
+            # Write data (2 bytes LE) at offset 4
+            for v in range(0, 4):
+                #4 valves
+                for c in range(0, 6):
+                    sta = int(valveSettings.schedule[vUnit][day][v][c]["start"])
+                    sto = int(valveSettings.schedule[vUnit][day][v][c]["stop"])
+                    eon = int(valveSettings.schedule[vUnit][day][v][c]["ecoOn"])
+                    eof = int(valveSettings.schedule[vUnit][day][v][c]["ecoOff"])
+                    struct.pack_into('<H', buffer, 0 + unit * 154 + 2 + v * 38, sta)
+                    struct.pack_into('<H', buffer, 0 + unit * 154 + 4 + v * 38, sto)
+                    struct.pack_into('<H', buffer, 0 + unit * 154 + 6 + v * 38, eon)
+                    struct.pack_into('<H', buffer, 0 + unit * 154 + 7 + v * 38, eof)
+    b64_data = base64.b64encode(buffer).decode('utf-8')
+
+    payload = json.dumps({
+        'event': f"sched_day{day}",
+        'data': b64_data,
+        'channel': channel
+    }, separators=(',', ':'))
+
+    if channel in channels:
+        ws_client = channels[channel]
+        if not ws_client.closed:
+             await ws_client.send_str(payload)
+    #await send_long_message(f"sched_day{day}", payload, channel)
 
 #async def msg_timestamp(time, extra=0, channel=None):
 async def msg_timestamp(minutes_of_day, day_of_week, channel=None):
