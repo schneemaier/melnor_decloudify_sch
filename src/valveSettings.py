@@ -14,7 +14,9 @@ class valveSettings:
                     self.controllerMac.append(data.get('controllerMac'))
                     self.valveUnits[data.get('controllerMac')] = data.get('valveUnits')
 
+valveSettings = valveSettings()
+
 if __name__ == "__main__":
-    valveSettings = valveSettings()
+    #valveSettings = valveSettings()
     print(valveSettings.controllerMac)
     print(valveSettings.valveUnits)

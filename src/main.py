@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 from settings import settings
+from valveSettings import valveSettings
 from web_server import start_web_server
 
 # Setup logging
