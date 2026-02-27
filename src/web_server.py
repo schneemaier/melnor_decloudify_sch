@@ -218,8 +218,8 @@ async def msg_sched_day(day, channel):
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 6 + v * 38, eon)
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 7 + v * 38, eof)
     b64_data = base64.b64encode(buffer).decode('utf-8')
-    logger.info(f"String: {buffer.encode().hex()}")
-    logger.info(f"Base64 string: {b86_data}")
+    logger.info(f"String: {buffer.hex()}")
+    logger.info(f"Base64 string: {b64_data}")
     payload = json.dumps({
         'event': f"sched_day{day}",
         'data': b64_data,
