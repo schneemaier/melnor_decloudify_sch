@@ -394,7 +394,7 @@ async def handle_submit(request):
     # State Machine
     # change state macine to dictionary to make it remote id dependent
 
-    sm[remote_id] < 7:
+    if sm[remote_id] < 7:
         await msg_sched_day(sm[remote_id], remote_id)
         sm[remote_id] += 1
         return web.Response(text='OK')
