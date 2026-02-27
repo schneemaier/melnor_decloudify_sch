@@ -241,6 +241,7 @@ async def msg_timestamp(minutes_of_day, day_of_week, channel=None):
         struct.pack_into('<H', b, 0, int(minutes_of_day))
         #struct.pack_into('b', b, 2, 0)
         struct.pack_into('b', b, 2, day_of_week)
+        logger.info(f"Timestamp for day: {day_of_week}, {minutes_of_day} Arrat: {b.hex(' ')}")
 
         await send_message('timestamp', base64.b64encode(b).decode('utf-8'), channel)
 
