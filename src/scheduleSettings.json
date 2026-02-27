@@ -8,10 +8,10 @@
           "valve1": [
             {
               "period": 1,
-              "start": 0,
-              "stop": 0,
-              "ecoOn": 0,
-              "ecoOff": 0
+              "start": 1,
+              "stop": 257,
+              "ecoOn": 1,
+              "ecoOff": 2
             },
             {
               "period": 2,
