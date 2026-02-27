@@ -213,6 +213,7 @@ async def msg_sched_day(day, channel):
                     sto = int(valveSettings.schedule[vUnit][day][v][c]["stop"])
                     eon = int(valveSettings.schedule[vUnit][day][v][c]["ecoOn"])
                     eof = int(valveSettings.schedule[vUnit][day][v][c]["ecoOff"])
+                    logger.info(f"Prog: {sta}, {sto}, {eon}, {eof}")
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 2 + v * 38, sta)
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 4 + v * 38, sto)
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 6 + v * 38, eon)
