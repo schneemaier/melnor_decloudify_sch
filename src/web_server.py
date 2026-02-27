@@ -213,15 +213,15 @@ async def msg_sched_day(day, channel):
                     sto = int(valveSettings.schedule[vUnit][day][v][c]["stop"])
                     eon = int(valveSettings.schedule[vUnit][day][v][c]["ecoOn"])
                     eof = int(valveSettings.schedule[vUnit][day][v][c]["ecoOff"])
-                    logger.info(f"Prog: {v}, {c}, {sta}, {sto}, {eon}, {eof}")
+                    #logger.info(f"Prog: {v}, {c}, {sta}, {sto}, {eon}, {eof}")
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 2 + v * 38 +c * 6, sta)
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 4 + v * 38 +c * 6, sto)
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 6 + v * 38 +c * 6, eon)
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 7 + v * 38 +c * 6, eof)
             unit += 1
     b64_data = base64.b64encode(buffer).decode('utf-8')
-    logger.info(f"String: {buffer.hex(' ')}")
-    logger.info(f"Base64 string: {b64_data}")
+    #logger.info(f"String: {buffer.hex(' ')}")
+    #logger.info(f"Base64 string: {b64_data}")
     payload = json.dumps({
         'event': f"sched_day{day}",
         'data': b64_data,
@@ -287,6 +287,7 @@ async def index(request):
     return web.FileResponse('./web/index.html')
 
 async def handle_rest(request):
+    # needs complete overhaul
     global valves, online
     opts = request.query
     rest_logger.debug(f"Rest API call with opts {opts}")
@@ -438,7 +439,9 @@ async def handle_submit(request):
 
     # Need fix multi mac address
     #if remote_id == 'ffffffffffff' or remote_id == settings.mac1.lower():
+    logger.info(f"remoteID ({remote_id})")
     if remote_id in valveSettings.controllerMac:
+        logger.info(f"remoteID ({remote_id}) in controllerMac")
         update_states(bin_state, remote_id) # update to multi device
         if connection_state[remote_id] == 0:
             online[remote_id] = True #need to change to support multi device
