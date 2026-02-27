@@ -159,8 +159,8 @@ async def send_long_message(event, data, channel_id=None):
                 await ws_client.send_str(payload)
 
 
-async def msg_manual_sched(channel_arg=None, runtime=None):
-    logger.info(f"Updating valve state {valves}")
+async def msg_manual_sched(channel_arg, valveUnit=None, valve1=None, valve2=None, valve3=None, valve4=None):
+    logger.info(f"Manual schedule for {channel_arg}")
     dbg = ''
 
     buffer = bytearray(18)
@@ -394,18 +394,19 @@ async def handle_submit(request):
     # State Machine
     # change state macine to dictionary to make it remote id dependent
 
-    if sm[remote_id] < 7:
+    sm[remote_id] < 7:
         await msg_sched_day(sm[remote_id], remote_id)
         sm[remote_id] += 1
         return web.Response(text='OK')
 
-    if sm[remote_id] == 7:
-        # add remote id
-        await msg_manual_sched(2, 20)
-        sm[remote_id] += 1
-        return web.Response(text='OK')
+    #if sm[remote_id] == 7:
+    #    # add remote id
+    #    await msg_manual_sched(remote_id)
+    #    sm[remote_id] += 1
+    #    return web.Response(text='OK')
 
-    if sm[remote_id] == 8:
+
+    if sm[remote_id] == 7:
         #while datetime.now().second > 5:
         #    logger.debug(f'Waiting for time: {datetime.now().second}')
         #    await asyncio.sleep(1)
@@ -416,12 +417,12 @@ async def handle_submit(request):
         sm[remote_id] += 1
         return web.Response(text='OK')
 
-    if sm[remote_id] == 9:
+    if sm[remote_id] == 8:
         await msg_rev_req(remote_id)
         sm[remote_id] += 1
         return web.Response(text='OK')
 
-    if sm[remote_id] == 10:
+    if sm[remote_id] == 9:
         # iv has to be per remote id
         if remote_id in iv:
             iv[remote_id].cancel()
