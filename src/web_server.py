@@ -264,6 +264,8 @@ async def check_timeout(renote_id):
     #need additon to enable multi controller
     global time_stamp
     #time_stamp += 1
+    now = datetime.now()
+    minutes_of_day = now.hour * 60 + now.minute
     time_stamp = int(minutes_of_day)
     logger.debug(f"Watchdog : time:{time_stamp}/{remote_stamp}")
 
