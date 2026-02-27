@@ -340,7 +340,7 @@ async def handle_submit(request):
     message = request.query.get('message', '')
 
     bin_state = None
-    logger.info(f"Device sent null: {message}.")
+    logger.info(f"Device sent: {message}.")
     if message.endswith('ack--null'):
         ack_type = message.replace('ascii--', '').replace('--ack--null', '')
         logger.info(f"Device sent ack--null event ack for {ack_type} device time : {remote_stamp}.")
@@ -356,6 +356,7 @@ async def handle_submit(request):
         padded_message = message + '=' * (-len(message) % 4)
         try:
             bin_state = base64.b64decode(padded_message)
+            logger.info(f"Binstate: {padded_message.hex(' ')}")
         except Exception as e:
             logger.error(f"Error decoding base64 message: {e}")
             return web.Response(text='OK')
