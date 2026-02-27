@@ -15,10 +15,10 @@
             },
             {
               "period": 2,
-              "start": 0,
-              "stop": 0,
-              "ecoOn": 0,
-              "ecoOff": 0
+              "start": 3,
+              "stop": 258,
+              "ecoOn": 5,
+              "ecoOff": 6
             },
             {
               "period": 3,
