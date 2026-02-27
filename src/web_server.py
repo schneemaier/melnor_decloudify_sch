@@ -356,7 +356,7 @@ async def handle_submit(request):
         padded_message = message + '=' * (-len(message) % 4)
         try:
             bin_state = base64.b64decode(padded_message)
-            logger.info(f"Binstate: {bin_state.encode().hex(' ')}")
+            logger.info(f"Binstate: {bin_state.hex(' ')}")
         except Exception as e:
             logger.error(f"Error decoding base64 message: {e}")
             return web.Response(text='OK')
