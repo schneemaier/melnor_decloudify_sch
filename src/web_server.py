@@ -343,12 +343,12 @@ async def handle_submit(request):
     logger.info(f"Device sent: {message}.")
     if message.endswith('ack--null'):
         ack_type = message.replace('ascii--', '').replace('--ack--null', '')
-        logger.info(f"Device sent ack--null event ack for {ack_type} device time : {remote_stamp}.")
+        #logger.info(f"Device sent ack--null event ack for {ack_type} device time : {remote_stamp}.")
         bin_state = bytearray(4)
     elif message.startswith('ascii--re'):
         # handle revision message which otherwise creates a decode error
         ack_type = message.replace('ascii--', '')
-        logger.info(f"Device sent ascii-- event ack for {ack_type} device time : {remote_stamp}.")
+        #logger.info(f"Device sent ascii-- event ack for {ack_type} device time : {remote_stamp}.")
         bin_state = bytearray(4)
     else:
         # Some padding might be needed for base64 decoding if not valid
@@ -365,20 +365,20 @@ async def handle_submit(request):
     if len(bin_state) >= 6:
         remote_id = ''.join(f'{b:02x}' for b in reversed(bin_state[0:6]))
     else:
-        remote_id = "000000000000"
         remote_id = id_hash[:12] # use the hash if message is ascii--hashkeyevnt--ack--null otherwise cycle fails
+
+    if len(bin_state) >= 10:
+        remote_stamp = bin_state[8] + (bin_state[9] * 256)
+        time_stamp = remote_stamp
+        logger.info(f"Time update from {remote_id}, time {remote_stamp}")
 
     # First message from device check (id_hash is checked against '0000000000' etc)
     if id_hash == '0000000000' or id_hash == 'ffffffffff':
-        logger.info(f"Received submit for channel {remote_id}")
-        if len(bin_state) >= 10:
-             remote_stamp = bin_state[8] + (bin_state[9] * 256)
-             time_stamp = remote_stamp
-
-        #await msg_hashkey('53f574cb08', remote_id)
-        #await msg_hashkey(remote_id[-10:], remote_id)
+        logger.info(f"Received submit for channel {remote_id}, sending hashkey")
+        #if len(bin_state) >= 10:
+        #     remote_stamp = bin_state[8] + (bin_state[9] * 256)
+        #     time_stamp = remote_stamp
         await msg_hashkey(remote_id, remote_id)
-        #hashkey[remote_id] = remote_id[-10:]
         hashkey[remote_id] = remote_id
         # setup state machine
         sm[remote_id] = 0
