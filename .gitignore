@@ -1,3 +1,5 @@
 yarn.lock
 node_modules
 settings.json
+__pycache__
+*.pyc
