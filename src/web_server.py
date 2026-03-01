@@ -25,8 +25,10 @@ rest_logger = logging.getLogger("REST")
 
 # Global state
 # needs update to multi controller support
-valves = [0] * 8
-reported_valves = [0] * 8
+valve = [0] * 8
+reported_valve = [0] * 8
+valves = {}
+reported_valves = {}
 time_stamp = {}
 remote_stamp = {}
 connection_state = {}
@@ -59,7 +61,7 @@ online = {} #Map channel (MAC) to status
 # --- Helper Functions ---
 
 def update_states(bin_state, remote_id):
-    global remote_stamp, time_stamp, battery_percent, connection_state, reported_valves
+    global remote_stamp, time_stamp, battery_percent, connection_state, reported_valves,reported_valve
 
     remote_stamp[remote_id] = bin_state[bin_fields['TIME_LOW']] + (bin_state[bin_fields['TIME_HIGH']] * 256)
     time_stamp[remote_id] = remote_stamp[remote_id]
@@ -70,16 +72,17 @@ def update_states(bin_state, remote_id):
 
     logger.info(f"Battery is roughly at {int(battery_percent[remote_id])}%")
 
-    reported_valves[0] = buttons & 0x1
-    reported_valves[1] = buttons & 0x2
-    reported_valves[2] = buttons & 0x4
-    reported_valves[3] = buttons & 0x8
-    reported_valves[4] = buttons & 0x11
-    reported_valves[5] = buttons & 0x22
-    reported_valves[6] = buttons & 0x44
-    reported_valves[7] = buttons & 0x88
+    reported_valve[0] = buttons & 0x1
+    reported_valve[1] = buttons & 0x2
+    reported_valve[2] = buttons & 0x4
+    reported_valve[3] = buttons & 0x8
+    reported_valve[4] = buttons & 0x11
+    reported_valve[5] = buttons & 0x22
+    reported_valve[6] = buttons & 0x44
+    reported_valve[7] = buttons & 0x88
+    reported_valves[remote_id] = reported_valve
 
-    logger.info(f"BUTTONS: {reported_valves}")
+    logger.info(f"BUTTONS: {reported_valves[remote_id]}")
 
 async def send_message(event, data, channel_id=None):
     global channels
@@ -259,25 +262,25 @@ async def msg_connection_established(ws):
         await ws.send_str(payload1)
     #await send_message('pusher:connection_established', '{"socket_id":"265216.826472"}')
 
-async def check_timeout(renote_id):
+async def check_timeout(remote_id):
     #need additon to enable multi controller
-    global time_stamp
+    global time_stamp, valves
     #time_stamp += 1
     now = datetime.now()
     minutes_of_day = now.hour * 60 + now.minute
-    time_stamp = int(minutes_of_day)
-    logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[renote_id]}")
+    time_stamp[remote_id] = int(minutes_of_day)
+    logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
 
     dbg = ''
-    for i in range(len(valves)):
-        t = int(valves[i])
-        if t > time_stamp:
-             dbg += f"V{i}:{t - time_stamp} "
+    vlv = valves[remote_id]
+    for i in range(len(vlv)):
+        t = int(vlv[i])
+        if t > time_stamp[remote_id]:
+             dbg += f"V{i}:{t - time_stamp[remote_id]} "
         else:
              dbg += f"V{i}:OFF "
-             valves[i] = 0
+             vlv[i] = 0
     logger.debug(f"VALVES : {dbg}")
-    # sendPing(wss.clients) - using aiohttp heartbeat instead
 
 # --- Handlers ---
 
@@ -285,7 +288,7 @@ async def index(request):
     return web.FileResponse('./web/index.html')
 
 async def handle_rest(request):
-    # needs complete overhaul
+    # needs complete overhaul!!!!
     global valves, online
     opts = request.query
     rest_logger.debug(f"Rest API call with opts {opts}")
