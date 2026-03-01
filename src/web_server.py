@@ -264,7 +264,7 @@ async def msg_connection_established(ws):
 
 async def check_timeout(remote_id):
     #need additon to enable multi controller
-    global time_stamp, valves
+    global time_stamp, valves, valve
     #time_stamp += 1
     now = datetime.now()
     minutes_of_day = now.hour * 60 + now.minute
@@ -272,14 +272,14 @@ async def check_timeout(remote_id):
     logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
 
     dbg = ''
-    vlv = valves[remote_id]
-    for i in range(len(vlv)):
-        t = int(vlv[i])
+    valve = valves[remote_id]
+    for i in range(len(valve)):
+        t = int(valve[i])
         if t > time_stamp[remote_id]:
              dbg += f"V{i}:{t - time_stamp[remote_id]} "
         else:
              dbg += f"V{i}:OFF "
-             vlv[i] = 0
+             valve[i] = 0
     logger.debug(f"VALVES : {dbg}")
 
 # --- Handlers ---
@@ -310,7 +310,6 @@ async def handle_rest(request):
         }
         return web.json_response(status_data)
 
-    valve = int(opts.get('channel', 0))
     minutes = int(opts.get('min', 0))
 
     if minutes > 0 and valve > 0:
