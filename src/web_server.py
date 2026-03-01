@@ -27,13 +27,10 @@ rest_logger = logging.getLogger("REST")
 # needs update to multi controller support
 valves = [0] * 8
 reported_valves = [0] * 8
-time_stamp = 0
-remote_stamp = 0
-ws_connected_old = False
-online_old = False
-connection_state_old = 2
+time_stamp = {}
+remote_stamp = {}
 connection_state = {}
-battery_percent = "?"
+battery_percent = {}
 sm = {}
 iv = {}
 
@@ -64,14 +61,14 @@ online = {} #Map channel (MAC) to status
 def update_states(bin_state, remote_id):
     global remote_stamp, time_stamp, battery_percent, connection_state, reported_valves
 
-    remote_stamp = bin_state[bin_fields['TIME_LOW']] + (bin_state[bin_fields['TIME_HIGH']] * 256)
-    time_stamp = remote_stamp
+    remote_stamp[remote_id] = bin_state[bin_fields['TIME_LOW']] + (bin_state[bin_fields['TIME_HIGH']] * 256)
+    time_stamp[remote_id] = remote_stamp[remote_id]
     battery = bin_state[bin_fields['BATTERY']]
-    battery_percent = battery * 1.4428 - 268
+    battery_percent[remote_id] = battery * 1.4428 - 268
     connection_state[remote_id] = bin_state[bin_fields['STATE']] # this needs to handle multiple valves
     buttons = bin_state[bin_fields['BUTTONS']]
 
-    logger.info(f"Battery is roughly at {int(battery_percent)}%")
+    logger.info(f"Battery is roughly at {int(battery_percent[remote_id])}%")
 
     reported_valves[0] = buttons & 0x1
     reported_valves[1] = buttons & 0x2
@@ -159,11 +156,11 @@ async def send_long_message(event, data, channel_id=None):
                 await ws_client.send_str(payload)
 
 
-async def msg_manual_sched(channel_arg, valveUnit=None, valve1=None, valve2=None, valve3=None, valve4=None):
+async def msg_manual_sched(channel_arg, valveUnit=None):
     logger.info(f"Manual schedule for {channel_arg}")
     dbg = ''
 
-    buffer = bytearray(18)
+    buffer = bytearray(20)
     try:
         valve_id = int(settings.valveId11, 16)
     except ValueError:
@@ -241,7 +238,7 @@ async def msg_timestamp(minutes_of_day, day_of_week, channel=None):
         struct.pack_into('<H', b, 0, int(minutes_of_day))
         #struct.pack_into('b', b, 2, 0)
         struct.pack_into('b', b, 2, day_of_week)
-        logger.info(f"Timestamp for day: {day_of_week}, {minutes_of_day} Arrat: {b.hex(' ')}")
+        logger.info(f"Timestamp for day: {day_of_week}, {minutes_of_day} Array: {b.hex(' ')}")
 
         await send_message('timestamp', base64.b64encode(b).decode('utf-8'), channel)
 
@@ -269,7 +266,7 @@ async def check_timeout(renote_id):
     now = datetime.now()
     minutes_of_day = now.hour * 60 + now.minute
     time_stamp = int(minutes_of_day)
-    logger.debug(f"Watchdog : time:{time_stamp}/{remote_stamp}")
+    logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[renote_id]}")
 
     dbg = ''
     for i in range(len(valves)):
@@ -344,12 +341,10 @@ async def handle_submit(request):
     logger.info(f"Device sent: {message}.")
     if message.endswith('ack--null'):
         ack_type = message.replace('ascii--', '').replace('--ack--null', '')
-        #logger.info(f"Device sent ack--null event ack for {ack_type} device time : {remote_stamp}.")
         bin_state = bytearray(4)
     elif message.startswith('ascii--re'):
         # handle revision message which otherwise creates a decode error
         ack_type = message.replace('ascii--', '')
-        #logger.info(f"Device sent ascii-- event ack for {ack_type} device time : {remote_stamp}.")
         bin_state = bytearray(4)
     else:
         # Some padding might be needed for base64 decoding if not valid
@@ -369,23 +364,20 @@ async def handle_submit(request):
         remote_id = id_hash[:12] # use the hash if message is ascii--hashkeyevnt--ack--null otherwise cycle fails
 
     if len(bin_state) >= 10:
-        remote_stamp = bin_state[8] + (bin_state[9] * 256)
-        time_stamp = remote_stamp
-        logger.info(f"Time update from {remote_id}, time {remote_stamp}")
+        remote_stamp[remote_id] = bin_state[8] + (bin_state[9] * 256)
+        # update for multi controller
+        time_stamp[remote_id] = remote_stamp[remote_id]
+        logger.info(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
 
     # First message from device check (id_hash is checked against '0000000000' etc)
     if id_hash == '0000000000' or id_hash == 'ffffffffff':
         logger.info(f"Received submit for channel {remote_id}, sending hashkey")
-        #if len(bin_state) >= 10:
-        #     remote_stamp = bin_state[8] + (bin_state[9] * 256)
-        #     time_stamp = remote_stamp
         await msg_hashkey(remote_id, remote_id)
         hashkey[remote_id] = remote_id
         # setup state machine
         sm[remote_id] = 0
         return web.Response(text='OK')
 
-    #if not ws_connected_old:
     if remote_id not in ws_connected  or not ws_connected[remote_id]:
         ws_logger.error('Device not in sync. Please reset or wait.')
         ws_logger.error(f"remoteid: {remote_id}, WS_connected: {ws_connected}")
@@ -465,7 +457,7 @@ async def app_handler(request):
     If it's a WebSocket upgrade request, it initiates the WebSocket connection.
     Otherwise, it returns a standard OK response.
     """
-    global ws_connected, online, sm, ws_connected_old
+    global ws_connected, online, sm
     logger.debug(f"New Pusher client request header: {request.headers}")
     if request.headers.get('Upgrade', '').lower() == 'websocket':
         logger.debug(f"WebSocket upgrade request from : {request.remote}")
@@ -478,12 +470,11 @@ async def app_handler(request):
         return web.Response(text='OK')
 
 async def websocket_handler(request):
-    global ws_connected, online, sm, ws_connected_old
+    global ws_connected, online, sm
     ws = web.WebSocketResponse(heartbeat=90.0)
     await ws.prepare(request)
 
     clients.add(ws)
-    ws_connected_old = True
 
     port = request.transport.get_extra_info('peername')[1]
     ws_logger.debug(f"New WS connection established from port id {port}")
