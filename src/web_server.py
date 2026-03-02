@@ -37,12 +37,22 @@ sm = {}
 iv = {}
 
 bin_fields = {
+    'CONTROLLER_ID': 0,
     'DAY': 6,
     'TIME_LOW': 8,
     'TIME_HIGH': 9,
-    'BUTTONS': 12,
-    'BATTERY': 13,
-    'STATE': 14
+    'UNIT_ID_LOW_1': 10,
+    'UNIT_ID_HIGH_1': 11,
+    'BUTTONS_1': 12,
+    'BATTERY_1': 13,
+    'WATER_SENSOR_1': 14,
+    'STATE_1': 15, # Valve unit connected?
+    'UNIT_ID_LOW_2': 16,
+    'UNIT_ID_HIGH_2': 17,
+    'BUTTONS_2': 18,
+    'BATTERY_2': 19,
+    'WATER_SENSOR_2': 20,
+    'STATE_2': 21  # Valve unit connected?
 }
 
 states = {
@@ -62,25 +72,31 @@ online = {} #Map channel (MAC) to status
 
 def update_states(bin_state, remote_id):
     global remote_stamp, time_stamp, battery_percent, connection_state, reported_valves,reported_valve
+    battery = {}
+    connection = {}
+    button = [0] * 2
+    unit = []
 
     remote_stamp[remote_id] = bin_state[bin_fields['TIME_LOW']] + (bin_state[bin_fields['TIME_HIGH']] * 256)
     time_stamp[remote_id] = remote_stamp[remote_id]
-    battery = bin_state[bin_fields['BATTERY']]
-    battery_percent[remote_id] = battery * 1.4428 - 268
-    connection_state[remote_id] = bin_state[bin_fields['STATE']] # this needs to handle multiple valves
-    buttons = bin_state[bin_fields['BUTTONS']]
+    unit[1] = bin_state[bin_fields['UNIT_ID_HIGH_1']].hex() + bin_state[bin_fields['UNIT_ID_LOW_1']].hex()
+    unit[2] = bin_state[bin_fields['UNIT_ID_HIGH_2']].hex() + bin_state[bin_fields['UNIT_ID_LOW_2']].hex()
+    battery1 = bin_state[bin_fields['BATTERY_1']]
+    battery2 = bin_state[bin_fields['BATTERY_2']]
+    battery[unit1] = battery1 * 1.4428 - 268
+    battery[unit2] = battery2 * 1.4428 - 268
+    battery_percent[remote_id] = battery
+    connection[unit1] = bin_state[bin_fields['STATE_1']]
+    connection[unit2] = bin_state[bin_fields['STATE_2']]
+    connection_state[remote_id] = connection
+    button[1] = bin_state[bin_fields['BUTTONS_1']]
+    button[2] = bin_state[bin_fields['BUTTONS_2']]
 
-    logger.info(f"Battery is roughly at {int(battery_percent[remote_id])}%")
-
-    reported_valve[0] = buttons & 0x1
-    reported_valve[1] = buttons & 0x2
-    reported_valve[2] = buttons & 0x4
-    reported_valve[3] = buttons & 0x8
-    reported_valve[4] = buttons & 0x11
-    reported_valve[5] = buttons & 0x22
-    reported_valve[6] = buttons & 0x44
-    reported_valve[7] = buttons & 0x88
-    reported_valves[remote_id] = reported_valve
+    logger.info(f"Batteries are roughly at {int(battery_percent[remote_id])}%")
+    for b in range(2):
+        for i in range(8):
+            reported_valve[i] = button[b] & (2 ** i)
+        valves[unit[b]] = reported_valve
 
     logger.info(f"BUTTONS: {reported_valves[remote_id]}")
 
@@ -274,15 +290,20 @@ async def check_timeout(remote_id):
     dbg = ''
     valve = valves[remote_id]
     logger.debug(f"valve : {valve}")
-    for i in range(len(valve)):
-        t = int(valve[i])
-        logger.debug(f"i : {i}")
-        if t > time_stamp[remote_id]:
-             dbg += f"V{i}:{t - time_stamp[remote_id]} "
-        else:
-             dbg += f"V{i}:OFF "
-             valve[i] = 0
-    logger.debug(f"VALVES : {dbg}")
+    for v in valve:
+        logger.debug(f"valve : {v}")
+
+    ###
+    # for i in range(len(valve)):
+    #    t = int(valve[i])
+    #    logger.debug(f"i : {i}")
+    #    if t > time_stamp[remote_id]:
+    #         dbg += f"V{i}:{t - time_stamp[remote_id]} "
+    #    else:
+    #         dbg += f"V{i}:OFF "
+    #         valve[i] = 0
+    #logger.debug(f"VALVES : {dbg}")
+    ###
 
 # --- Handlers ---
 
@@ -454,7 +475,7 @@ async def handle_submit(request):
         logger.info(f"Device in unknown state {remote_id}")
 
     return web.Response(text='OK')
-0
+
 async def app_handler(request):
     """
     Handles requests to /app/{key}.
