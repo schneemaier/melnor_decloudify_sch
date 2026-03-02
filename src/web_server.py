@@ -92,7 +92,7 @@ def update_states(bin_state, remote_id):
     button[0] = bin_state[bin_fields['BUTTONS_1']]
     button[1] = bin_state[bin_fields['BUTTONS_2']]
 
-    logger.info(f"Batteries are roughly at {int(battery_percent[remote_id])}%")
+    logger.info(f"Batteries are roughly at {battery_percent[remote_id]}")
     for b in range(2):
         for i in range(8):
             reported_valve[i] = button[b] & (2 ** i)
