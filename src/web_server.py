@@ -395,7 +395,7 @@ async def handle_submit(request):
         # update for multi controller
         time_stamp[remote_id] = remote_stamp[remote_id]
         logger.info(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
-        #update_states(bin_state, remote_id)
+        update_states(bin_state, remote_id)
 
     # First message from device check (id_hash is checked against '0000000000' etc)
     if id_hash == '0000000000' or id_hash == 'ffffffffff':
@@ -419,7 +419,8 @@ async def handle_submit(request):
         await msg_sched_day(sm[remote_id], remote_id)
         sm[remote_id] += 1
         return web.Response(text='OK')
-
+    # mannual schedule needs to be added back to have the valce valuse in the system, but this requires
+    # the function to be fixed and handle the valve units
     #if sm[remote_id] == 7:
     #    # add remote id
     #    await msg_manual_sched(remote_id)
