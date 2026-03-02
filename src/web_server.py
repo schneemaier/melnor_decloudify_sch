@@ -288,9 +288,12 @@ async def check_timeout(remote_id):
     logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
     dbg = ''
     logger.info("valves next")
-    logger.debug(f"valve : {valves[remote_id]}")
-    for v in valves[remote_id]:
-        logger.debug(f"valve : {v}")
+    try:
+        logger.debug(f"valve : {valves[remote_id]}")
+        for v in valves[remote_id]:
+            logger.debug(f"valve : {v}")
+    except Exception as e:
+        logger.error(f"Valves seems to be empty")
 
     ###
     # for i in range(len(valve)):
@@ -392,6 +395,7 @@ async def handle_submit(request):
         # update for multi controller
         time_stamp[remote_id] = remote_stamp[remote_id]
         logger.info(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
+        #update_states(bin_state, remote_id)
 
     # First message from device check (id_hash is checked against '0000000000' etc)
     if id_hash == '0000000000' or id_hash == 'ffffffffff':
