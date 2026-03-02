@@ -97,6 +97,7 @@ def update_states(bin_state, remote_id):
         for i in range(8):
             reported_valve[i] = button[b] & (2 ** i)
         valves[unit[b]] = reported_valve
+    reported_valves[remote_id] = valves
 
     logger.info(f"BUTTONS: {reported_valves[remote_id]}")
 
