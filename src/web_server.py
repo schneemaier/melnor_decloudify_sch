@@ -89,8 +89,8 @@ def update_states(bin_state, remote_id):
     connection[unit[0]] = bin_state[bin_fields['STATE_1']]
     connection[unit[1]] = bin_state[bin_fields['STATE_2']]
     connection_state[remote_id] = connection
-    button[1] = bin_state[bin_fields['BUTTONS_1']]
-    button[2] = bin_state[bin_fields['BUTTONS_2']]
+    button[0] = bin_state[bin_fields['BUTTONS_1']]
+    button[1] = bin_state[bin_fields['BUTTONS_2']]
 
     logger.info(f"Batteries are roughly at {int(battery_percent[remote_id])}%")
     for b in range(2):
