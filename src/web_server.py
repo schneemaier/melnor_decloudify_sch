@@ -79,10 +79,8 @@ def update_states(bin_state, remote_id):
 
     remote_stamp[remote_id] = bin_state[bin_fields['TIME_LOW']] + (bin_state[bin_fields['TIME_HIGH']] * 256)
     time_stamp[remote_id] = remote_stamp[remote_id]
-    ut = hex(bin_state[bin_fields['UNIT_ID_HIGH_1']]) + hex(bin_state[bin_fields['UNIT_ID_LOW_1']])
-    unit.append[ut]
-    ut = hex(bin_state[bin_fields['UNIT_ID_HIGH_2']]) + hex(bin_state[bin_fields['UNIT_ID_LOW_2']])
-    unit.append[ut]
+    unit.append(hex(bin_state[bin_fields['UNIT_ID_HIGH_1']]) + hex(bin_state[bin_fields['UNIT_ID_LOW_1']]))
+    unit.append(hex(bin_state[bin_fields['UNIT_ID_HIGH_2']]) + hex(bin_state[bin_fields['UNIT_ID_LOW_2']]))
     battery1 = bin_state[bin_fields['BATTERY_1']]
     battery2 = bin_state[bin_fields['BATTERY_2']]
     battery[unit[0]] = battery1 * 1.4428 - 268
