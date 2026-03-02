@@ -75,19 +75,19 @@ def update_states(bin_state, remote_id):
     battery = {}
     connection = {}
     button = [0] * 2
-    unit = [] * 2
+    unit = []
 
     remote_stamp[remote_id] = bin_state[bin_fields['TIME_LOW']] + (bin_state[bin_fields['TIME_HIGH']] * 256)
     time_stamp[remote_id] = remote_stamp[remote_id]
-    unit[0] = hex(bin_state[bin_fields['UNIT_ID_HIGH_1']]) + hex(bin_state[bin_fields['UNIT_ID_LOW_1']])
-    unit[1] = hex(bin_state[bin_fields['UNIT_ID_HIGH_2']]) + hex(bin_state[bin_fields['UNIT_ID_LOW_2']])
+    unit.append[hex(bin_state[bin_fields['UNIT_ID_HIGH_1']]) + hex(bin_state[bin_fields['UNIT_ID_LOW_1']])]
+    unit.append[hex(bin_state[bin_fields['UNIT_ID_HIGH_2']]) + hex(bin_state[bin_fields['UNIT_ID_LOW_2']])]
     battery1 = bin_state[bin_fields['BATTERY_1']]
     battery2 = bin_state[bin_fields['BATTERY_2']]
-    battery[unit1] = battery1 * 1.4428 - 268
-    battery[unit2] = battery2 * 1.4428 - 268
+    battery[unit[0]] = battery1 * 1.4428 - 268
+    battery[unit[1]] = battery2 * 1.4428 - 268
     battery_percent[remote_id] = battery
-    connection[unit1] = bin_state[bin_fields['STATE_1']]
-    connection[unit2] = bin_state[bin_fields['STATE_2']]
+    connection[unit[0]] = bin_state[bin_fields['STATE_1']]
+    connection[unit[1]] = bin_state[bin_fields['STATE_2']]
     connection_state[remote_id] = connection
     button[1] = bin_state[bin_fields['BUTTONS_1']]
     button[2] = bin_state[bin_fields['BUTTONS_2']]
