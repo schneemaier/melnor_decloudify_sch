@@ -94,16 +94,12 @@ def update_states(bin_state, remote_id):
         button[1] = bin_state[bin_fields['BUTTONS_2']]
     battery_percent[remote_id] = battery
     connection_state[remote_id] = connection
-    logger.info(f"Batteries are roughly at {battery_percent[remote_id]}")
     for b in range(2):
-        valve = [0] * 8
-        logger.info(f"button for {unit[b]} is {hex(button[b])}")
-        for i in range(8):
-            valve[i] = (button[b] >> i) & 1
-            logger.info(f"i {i}, valve[i] {valve[i]} button {hex(button[b])}")
-        logger.info(f"valve before {valve} valves {valves}")
-        valves[unit[b]] = valve
-        logger.info(f"valve after  {valve} valves {valves}")
+        if int(unit[b], 16) != 0:
+            valve = [0] * 8
+            for i in range(8):
+                valve[i] = (button[b] >> i) & 1
+            valves[unit[b]] = valve
     reported_valves[remote_id] = valves
     logger.info(f"BUTTONS: {reported_valves[remote_id]}")
 
@@ -293,27 +289,21 @@ async def check_timeout(remote_id):
     minutes_of_day = now.hour * 60 + now.minute
     time_stamp[remote_id] = int(minutes_of_day)
     logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
-    dbg = ''
     logger.info(f"valves next remote_id: {remote_id}, {reported_valves}")
     valves = reported_valves[remote_id]
-    try:
-        logger.debug(f"valve : {valves}")
-        for v in valves:
-            logger.debug(f"valve : {v}")
-    except Exception as e:
-        logger.error(f"Valves seems to be empty")
-
-    ###
-    # for i in range(len(valve)):
-    #    t = int(valve[i])
-    #    logger.debug(f"i : {i}")
-    #    if t > time_stamp[remote_id]:
-    #         dbg += f"V{i}:{t - time_stamp[remote_id]} "
-    #    else:
-    #         dbg += f"V{i}:OFF "
-    #         valve[i] = 0
-    #logger.debug(f"VALVES : {dbg}")
-    ###
+    logger.debug(f"valve : {valves}")
+    for vid, vvalues in valves:
+        dbg = ''
+        dbg = vid + " "
+        for i in range(len(vvalues)):
+            t = int(valve[i])
+            logger.debug(f"i : {i}")
+            if t > time_stamp[remote_id]:
+                dbg += f"V{i}:{t - time_stamp[remote_id]} "
+            else:
+                dbg += f"V{i}:OFF "
+                valve[i] = 0
+        logger.debug(f"VALVES : {dbg}")
 
 # --- Handlers ---
 
