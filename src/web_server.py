@@ -71,11 +71,13 @@ online = {} #Map channel (MAC) to status
 # --- Helper Functions ---
 
 def update_states(bin_state, remote_id):
-    global remote_stamp, time_stamp, battery_percent, connection_state, reported_valves, reported_valve, valves
+    global remote_stamp, time_stamp, battery_percent, connection_state, reported_valves
+    valves = {}
     battery = {}
     connection = {}
     button = [0] * 2
     unit = []
+    valve = [0] * 8
 
     remote_stamp[remote_id] = bin_state[bin_fields['TIME_LOW']] + (bin_state[bin_fields['TIME_HIGH']] * 256)
     time_stamp[remote_id] = remote_stamp[remote_id]
@@ -97,8 +99,8 @@ def update_states(bin_state, remote_id):
     for b in range(2):
         logger.info(f"button for {unit[b]} is {hex(button[b])}")
         for i in range(8):
-            reported_valve[i] = button[b] & (2 ** i)
-        valves[unit[b]] = reported_valve
+            valve[i] = (button[b] >> b) & 1
+        valves[unit[b]] = valve
     reported_valves[remote_id] = valves
     logger.info(f"BUTTONS: {reported_valves[remote_id]}")
 
