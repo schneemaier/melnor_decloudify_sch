@@ -95,7 +95,7 @@ def update_states(bin_state, remote_id):
     connection_state[remote_id] = connection
     logger.info(f"Batteries are roughly at {battery_percent[remote_id]}")
     for b in range(2):
-        logger.info(f"button for {ubit[b]} is {hex(button[b])}")
+        logger.info(f"button for {unit[b]} is {hex(button[b])}")
         for i in range(8):
             reported_valve[i] = button[b] & (2 ** i)
         valves[unit[b]] = reported_valve
