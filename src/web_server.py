@@ -178,27 +178,30 @@ async def send_long_message(event, data, channel_id=None):
                 await ws_client.send_str(payload)
 
 
-async def msg_manual_sched(channel_arg, valveUnit=None):
-    logger.info(f"Manual schedule for {channel_arg}")
+async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, time = None):
+    logger.info(f"Manual schedule for {channel_arg} valveUnit {valveUnit} valve {valve} time {time}")
     dbg = ''
 
     buffer = bytearray(20)
-    try:
-        valve_id = int(settings.valveId11, 16)
-    except ValueError:
-        logger.error(f"Invalid valveId in settings: {settings.valveId11}. Using 0.")
-        valve_id = 0
 
-    struct.pack_into('<H', buffer, 0, valve_id)
+    if mode == "start":
+        logger.debug("Start")
+        struct.pack_into('<H', buffer, 0, settings.valveUnits[0])
+        struct.pack_into('<H', buffer, 10, settings.valveUnits[1])
+    elif mode == "single" and valveUnit is not None and valve is not None and time is not None:
+        logger.debug("Single valve")
+    else:
+        logger.error("Illegal command!")
+        return
 
-    for i in range(len(valves)):
-        t = int(valves[i])
-        if t > time_stamp:
-            dbg += f"V{i}:{t - time_stamp} "
-            struct.pack_into('<H', buffer, 2 + 2 * i, t)
-        else:
-            dbg += f"V{i}:OFF "
-            valves[i] = 0
+    #for i in range(len(valves)):
+    #    t = int(valves[i])
+    #    if t > time_stamp:
+    #        dbg += f"V{i}:{t - time_stamp} "
+    #        struct.pack_into('<H', buffer, 2 + 2 * i, t)
+    #    else:
+    #        dbg += f"V{i}:OFF "
+    #        valves[i] = 0
 
     ws_logger.debug(f"VALVES : {dbg}")
 
@@ -208,7 +211,7 @@ async def msg_manual_sched(channel_arg, valveUnit=None):
     ev = {
         'event': 'manual_sched',
         'data': b64_data,
-        'channel': settings.mac1.lower()
+        'channel': channel_arg
     }
 
     ws_logger.debug(f"Constructed msg : {json.dumps(ev, separators=(',', ':'))}")
@@ -393,7 +396,7 @@ async def handle_submit(request):
         # update for multi controller
         time_stamp[remote_id] = remote_stamp[remote_id]
         logger.info(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
-        if sm[remote_id] < 10:
+        if sm[remote_id] < 11:
             update_states(bin_state, remote_id)
 
     # First message from device check (id_hash is checked against '0000000000' etc)
@@ -418,14 +421,6 @@ async def handle_submit(request):
         await msg_sched_day(sm[remote_id], remote_id)
         sm[remote_id] += 1
         return web.Response(text='OK')
-    # mannual schedule needs to be added back to have the valce valuse in the system, but this requires
-    # the function to be fixed and handle the valve units
-    #if sm[remote_id] == 7:
-    #    # add remote id
-    #    await msg_manual_sched(remote_id)
-    #    sm[remote_id] += 1
-    #    return web.Response(text='OK')
-
 
     if sm[remote_id] == 7:
         #while datetime.now().second > 5:
@@ -443,7 +438,15 @@ async def handle_submit(request):
         sm[remote_id] += 1
         return web.Response(text='OK')
 
+    # mannual schedule needs to be added back to have the valce valuse in the system, but this requires
+    # the function to be fixed and handle the valve units
     if sm[remote_id] == 9:
+        # add remote id
+        await msg_manual_sched(remote_id,"start")
+        sm[remote_id] += 1
+        return web.Response(text='OK')
+
+    if sm[remote_id] == 10:
         # iv has to be per remote id
         if remote_id in iv:
             logger.info(f"canceling {remote_id}")
