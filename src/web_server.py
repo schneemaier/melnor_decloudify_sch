@@ -298,12 +298,10 @@ async def check_timeout(remote_id):
             valve = valves[vid]
             for i in range(len(valves[vid])):
                 t = int(valve[i])
-                logger.debug(f"i : {i}")
-                if t > time_stamp[remote_id]:
-                    dbg += f"V{i}:{t - time_stamp[remote_id]} "
+                if t > 0:
+                    dbg += f"V{i}:ON  "
                 else:
                     dbg += f"V{i}:OFF "
-                    valve[i] = 0
             logger.debug(f"VALVES : {dbg}")
     except Exception as e:
         logger.error(f"Error in watchdog loop: {e}")
