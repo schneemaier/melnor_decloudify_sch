@@ -83,15 +83,16 @@ def update_states(bin_state, remote_id):
     unit.append(hex(bin_state[bin_fields['UNIT_ID_HIGH_2']])[2:] + hex(bin_state[bin_fields['UNIT_ID_LOW_2']])[2:])
     battery1 = bin_state[bin_fields['BATTERY_1']]
     battery2 = bin_state[bin_fields['BATTERY_2']]
-    battery[unit[0]] = battery1 * 1.4428 - 268
-    battery[unit[1]] = battery2 * 1.4428 - 268
+    if int(unit[0],16) != 0:
+        battery[unit[0]] = battery1 * 1.4428 - 268
+        connection[unit[0]] = bin_state[bin_fields['STATE_1']]
+        button[0] = bin_state[bin_fields['BUTTONS_1']]
+    if int(unit[1], 16) != 0:
+        battery[unit[1]] = battery2 * 1.4428 - 268
+        connection[unit[1]] = bin_state[bin_fields['STATE_2']]
+        button[1] = bin_state[bin_fields['BUTTONS_2']]
     battery_percent[remote_id] = battery
-    connection[unit[0]] = bin_state[bin_fields['STATE_1']]
-    connection[unit[1]] = bin_state[bin_fields['STATE_2']]
     connection_state[remote_id] = connection
-    button[0] = bin_state[bin_fields['BUTTONS_1']]
-    button[1] = bin_state[bin_fields['BUTTONS_2']]
-
     logger.info(f"Batteries are roughly at {battery_percent[remote_id]}")
     for b in range(2):
         for i in range(8):
@@ -288,7 +289,7 @@ async def check_timeout(remote_id):
     time_stamp[remote_id] = int(minutes_of_day)
     logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
     dbg = ''
-    logger.info(f"valves next remote_id: {remote_id}, {valves}")
+    logger.info(f"valves next remote_id: {remote_id}, {reported_valves}")
     valves = reported_valves[remote_id]
     try:
         logger.debug(f"valve : {valves}")
