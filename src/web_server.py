@@ -99,7 +99,8 @@ def update_states(bin_state, remote_id):
     for b in range(2):
         logger.info(f"button for {unit[b]} is {hex(button[b])}")
         for i in range(8):
-            valve[i] = (button[b] >> b) & 1
+            valve[i] = (button[b] >> i) & 1
+            #logger.info(f"i {i}, valve[i] {valve[i]} button {hex(button[b])}")
         valves[unit[b]] = valve
     reported_valves[remote_id] = valves
     logger.info(f"BUTTONS: {reported_valves[remote_id]}")
