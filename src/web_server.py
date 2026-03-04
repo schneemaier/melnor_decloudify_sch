@@ -288,12 +288,12 @@ async def check_timeout(remote_id):
     now = datetime.now()
     minutes_of_day = now.hour * 60 + now.minute
     time_stamp[remote_id] = int(minutes_of_day)
-    logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
+    logger.debug(f"Watchdog: {remote_id} time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
     valves = reported_valves[remote_id]
     try:
         for vid in valves:
             dbg = ''
-            dbg = vid + " "
+            dbg = vid + ": "
             valve = valves[vid]
             for i in range(len(valves[vid])):
                 t = int(valve[i])
@@ -301,7 +301,7 @@ async def check_timeout(remote_id):
                     dbg += f"V{i}:ON  "
                 else:
                     dbg += f"V{i}:OFF "
-            logger.debug(f"VALVES : {dbg}")
+            logger.debug(f"{remote_id} VALVES {dbg}")
     except Exception as e:
         logger.error(f"Error in watchdog loop: {e}")
 
@@ -513,12 +513,12 @@ async def websocket_handler(request):
         ws_logger.debug(f"Starting Try")
         ws_logger.debug(f"WS Message: {ws}")
         async for msg in ws:
-            ws_logger.debug(f"Message type {msg.type}")
+            #ws_logger.debug(f"Message type {msg.type}")
             if msg.type == WSMsgType.TEXT:
                 try:
-                    ws_logger.debug(f"Message type is text")
+                    #ws_logger.debug(f"Message type is text")
                     data = json.loads(msg.data)
-                    ws_logger.debug(f"Message is: {data}")
+                    #ws_logger.debug(f"Message is: {data}")
                     ws_logger.debug(f"New WS event {data.get('event')} for portid {port}")
 
                     if data.get('event') == 'pusher:ping':
@@ -546,7 +546,7 @@ async def websocket_handler(request):
                 ws_logger.error(f'ws connection closed with exception {ws.exception()}')
 
     finally:
-        ws_logger.debug(f"Try Failed....")
+        #ws_logger.debug(f"Try Failed....")
         clients.remove(ws)
         # Remove from channels if present
         for ch, socket in list(channels.items()):
