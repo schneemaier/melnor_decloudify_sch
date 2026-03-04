@@ -401,7 +401,8 @@ async def handle_submit(request):
         # update for multi controller
         time_stamp[remote_id] = remote_stamp[remote_id]
         logger.info(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
-        update_states(bin_state, remote_id)
+        if sm[remote_id] < 10:
+            update_states(bin_state, remote_id)
 
     # First message from device check (id_hash is checked against '0000000000' etc)
     if id_hash == '0000000000' or id_hash == 'ffffffffff':
