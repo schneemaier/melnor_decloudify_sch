@@ -77,7 +77,6 @@ def update_states(bin_state, remote_id):
     connection = {}
     button = [0] * 2
     unit = []
-    valve = [0] * 8
 
     remote_stamp[remote_id] = bin_state[bin_fields['TIME_LOW']] + (bin_state[bin_fields['TIME_HIGH']] * 256)
     time_stamp[remote_id] = remote_stamp[remote_id]
@@ -97,6 +96,7 @@ def update_states(bin_state, remote_id):
     connection_state[remote_id] = connection
     logger.info(f"Batteries are roughly at {battery_percent[remote_id]}")
     for b in range(2):
+        valve = [0] * 8
         logger.info(f"button for {unit[b]} is {hex(button[b])}")
         for i in range(8):
             valve[i] = (button[b] >> i) & 1
