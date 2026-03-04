@@ -189,7 +189,7 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
         logger.debug("Start")
         struct.pack_into('<H', buffer, 0, int(valveSettings.valveUnits[channel_arg][0],16))
         struct.pack_into('<H', buffer, 10, int(valveSettings.valveUnits[channel_arg][1],16))
-        offtime = time_stamp[channel_arg]
+        offtime = time_stamp[channel_arg]+1
         for i in range(2):
             for j in range(4):
                 struct.pack_into('<H', buffer, 2+2*j+i*10, int(offtime))
@@ -208,7 +208,7 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
     #        dbg += f"V{i}:OFF "
     #        valves[i] = 0
 
-    ws_logger.debug(f"VALVES : {dbg}")
+    ws_logger.debug(f"VALVES : {buffer}")
 
     # The original code wraps the base64 string in quotes
     b64_data = f'"{base64.b64encode(buffer).decode("utf-8")}"'
