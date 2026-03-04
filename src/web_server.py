@@ -291,18 +291,21 @@ async def check_timeout(remote_id):
     logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
     valves = reported_valves[remote_id]
     logger.debug(f"remote_id: {remote_id} valve : {valves}")
-    for vid, vvalues in valves:
-        dbg = ''
-        dbg = vid + " "
-        for i in range(len(vvalues)):
-            t = int(valve[i])
-            logger.debug(f"i : {i}")
-            if t > time_stamp[remote_id]:
-                dbg += f"V{i}:{t - time_stamp[remote_id]} "
-            else:
-                dbg += f"V{i}:OFF "
-                valve[i] = 0
-        logger.debug(f"VALVES : {dbg}")
+    try:
+        for vid, vvalues in valves:
+            dbg = ''
+            dbg = vid + " "
+            for i in range(len(vvalues)):
+                t = int(valve[i])
+                logger.debug(f"i : {i}")
+                if t > time_stamp[remote_id]:
+                    dbg += f"V{i}:{t - time_stamp[remote_id]} "
+                else:
+                    dbg += f"V{i}:OFF "
+                    valve[i] = 0
+            logger.debug(f"VALVES : {dbg}")
+    except Exception as e:
+        logger.error(f"Error in watchdog loop: {e}")
 
 # --- Handlers ---
 
