@@ -71,7 +71,7 @@ online = {} #Map channel (MAC) to status
 # --- Helper Functions ---
 
 def update_states(bin_state, remote_id):
-    global remote_stamp, time_stamp, battery_percent, connection_state, reported_valves,reported_valve
+    global remote_stamp, time_stamp, battery_percent, connection_state, reported_valves, reported_valve, valves
     battery = {}
     connection = {}
     button = [0] * 2
@@ -281,7 +281,7 @@ async def msg_connection_established(ws):
 
 async def check_timeout(remote_id):
     #need additon to enable multi controller
-    global time_stamp, valves, valve
+    global time_stamp, remote_stamp, reported_valves
     #time_stamp += 1
     now = datetime.now()
     minutes_of_day = now.hour * 60 + now.minute
@@ -289,9 +289,10 @@ async def check_timeout(remote_id):
     logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
     dbg = ''
     logger.info(f"valves next remote_id: {remote_id}, {valves}")
+    valves = reported_valves[remote_id]
     try:
-        logger.debug(f"valve : {valves[remote_id]}")
-        for v in valves[remote_id]:
+        logger.debug(f"valve : {valves}")
+        for v in valves:
             logger.debug(f"valve : {v}")
     except Exception as e:
         logger.error(f"Valves seems to be empty")
