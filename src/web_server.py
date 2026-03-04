@@ -289,7 +289,6 @@ async def check_timeout(remote_id):
     minutes_of_day = now.hour * 60 + now.minute
     time_stamp[remote_id] = int(minutes_of_day)
     logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
-    logger.info(f"valves next remote_id: {remote_id}, {reported_valves}")
     valves = reported_valves[remote_id]
     logger.debug(f"valve : {valves}")
     for vid, vvalues in valves:
@@ -446,6 +445,7 @@ async def handle_submit(request):
     if sm[remote_id] == 9:
         # iv has to be per remote id
         if remote_id in iv:
+            logger.info(f"canceling {remote_id}")
             iv[remote_id].cancel()
         # Start watchdog loop
         iv[remote_id] = asyncio.create_task(watchdog_loop(remote_id))
