@@ -208,7 +208,7 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
     #        dbg += f"V{i}:OFF "
     #        valves[i] = 0
 
-    ws_logger.debug(f"VALVES : {buffer}")
+    ws_logger.debug(f"VALVES : {buffer.hex(" ")}")
 
     # The original code wraps the base64 string in quotes
     b64_data = f'"{base64.b64encode(buffer).decode("utf-8")}"'
