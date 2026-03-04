@@ -469,6 +469,7 @@ async def handle_submit(request):
     logger.info(f"remoteID ({remote_id})")
     if remote_id in valveSettings.controllerMac:
         logger.info(f"remoteID ({remote_id}) in controllerMac")
+        logger.info(f"Binstate2 : {binsate.hex(' ')}")
         update_states(bin_state, remote_id) # update to multi device
         if connection_state[remote_id] == 0:
             online[remote_id] = True #need to change to support multi device
