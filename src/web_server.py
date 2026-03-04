@@ -290,7 +290,7 @@ async def check_timeout(remote_id):
     time_stamp[remote_id] = int(minutes_of_day)
     logger.debug(f"Watchdog : time:{time_stamp[remote_id]}/{remote_stamp[remote_id]}")
     valves = reported_valves[remote_id]
-    logger.debug(f"valve : {valves}")
+    logger.debug(f"remote_id: {remote_id} valve : {valves}")
     for vid, vvalues in valves:
         dbg = ''
         dbg = vid + " "
