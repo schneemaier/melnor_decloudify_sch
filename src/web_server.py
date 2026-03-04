@@ -186,8 +186,8 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
 
     if mode == "start":
         logger.debug("Start")
-        struct.pack_into('<H', buffer, 0, settings.valveUnits[0])
-        struct.pack_into('<H', buffer, 10, settings.valveUnits[1])
+        struct.pack_into('<H', buffer, 0, valveSettings.valveUnits[0])
+        struct.pack_into('<H', buffer, 10, valveSettings.valveUnits[1])
     elif mode == "single" and valveUnit is not None and valve is not None and time is not None:
         logger.debug("Single valve")
     else:
