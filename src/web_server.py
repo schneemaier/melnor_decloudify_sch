@@ -460,6 +460,10 @@ async def handle_submit(request):
         logger.debug(f'Device sent revisions: {ack_type[11:]}')
         return web.Response(text='OK')
 
+    if message.startswith('ascii--manualctrlevnt--'):
+        logger.debug(f'Device sent manualctrlevnt ack')
+        return web.Response(text='OK')
+
     if message.startswith('ascii--timestampevnt--'):
         logger.debug('Device sent timestampevnt ack')
         return web.Response(text='OK')
