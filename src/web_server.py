@@ -292,10 +292,11 @@ async def check_timeout(remote_id):
     valves = reported_valves[remote_id]
     logger.debug(f"remote_id: {remote_id} valve : {valves}")
     try:
-        for vid, vvalues in valves:
+        for vid in valves:
             dbg = ''
             dbg = vid + " "
-            for i in range(len(vvalues)):
+            valve = valves[vid]
+            for i in range(len(valves[vid])):
                 t = int(valve[i])
                 logger.debug(f"i : {i}")
                 if t > time_stamp[remote_id]:
