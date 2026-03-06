@@ -237,10 +237,16 @@ async def msg_sched_day(day, channel):
             for v in range(0, 4):
                 #4 valves
                 for c in range(0, 6):
-                    sta = int(valveSettings.schedule[vUnit][day][v][c]["start"])
-                    sto = int(valveSettings.schedule[vUnit][day][v][c]["stop"])
-                    eon = int(valveSettings.schedule[vUnit][day][v][c]["ecoOn"])
-                    eof = int(valveSettings.schedule[vUnit][day][v][c]["ecoOff"])
+                    try:
+                        sta = int(valveSettings.schedule[vUnit][day][v][c]["start"])
+                        sto = int(valveSettings.schedule[vUnit][day][v][c]["stop"])
+                        eon = int(valveSettings.schedule[vUnit][day][v][c]["ecoOn"])
+                        eof = int(valveSettings.schedule[vUnit][day][v][c]["ecoOff"])
+                    except:
+                        sta = 0
+                        sto = 0
+                        eon = 0
+                        eof = 0
                     #logger.info(f"Prog: {v}, {c}, {sta}, {sto}, {eon}, {eof}")
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 2 + v * 38 +c * 6, sta)
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 4 + v * 38 +c * 6, sto)
@@ -386,7 +392,7 @@ async def handle_submit(request):
         padded_message = message + '=' * (-len(message) % 4)
         try:
             bin_state = base64.b64decode(padded_message)
-            logger.info(f"Binstate: {bin_state.hex(' ')}")
+            logger.debug(f"Binstate: {bin_state.hex(' ')}")
         except Exception as e:
             logger.error(f"Error decoding base64 message: {e}")
             return web.Response(text='OK')
@@ -401,7 +407,7 @@ async def handle_submit(request):
         remote_stamp[remote_id] = bin_state[8] + (bin_state[9] * 256)
         # update for multi controller
         time_stamp[remote_id] = remote_stamp[remote_id]
-        logger.info(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
+        logger.debug(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
         if sm[remote_id] < 11:
             update_states(bin_state, remote_id)
 
@@ -478,8 +484,8 @@ async def handle_submit(request):
     #if remote_id == 'ffffffffffff' or remote_id == settings.mac1.lower():
     logger.info(f"remoteID ({remote_id})")
     if remote_id in valveSettings.controllerMac:
-        logger.info(f"remoteID ({remote_id}) in controllerMac")
-        logger.info(f"Binstate2 : {bin_state.hex(' ')}")
+        logger.debug(f"remoteID ({remote_id}) in controllerMac")
+        logger.debug(f"Binstate2 : {bin_state.hex(' ')}")
         update_states(bin_state, remote_id) # update to multi device
         if connection_state[remote_id] == 0:
             online[remote_id] = True #need to change to support multi device
@@ -506,9 +512,8 @@ async def app_handler(request):
         logger.debug(f"WebSocket upgrade request from : {request.remote}")
         port = request.transport.get_extra_info('peername')[1]
         ws_logger.debug(f"New WS connection established from port id {port}")
-        return await websocket_handler(request) #web.Response(text='OK') #websocket_handler(request)
+        return await websocket_handler(request)
     else:
-        #rest_logger.debug(f"New Pusher client connected: {request.query}")
         logger.debug(f"New Pusher client connected: {request.query}")
         return web.Response(text='OK')
 
@@ -524,50 +529,36 @@ async def websocket_handler(request):
 
     await msg_connection_established(ws)
     try:
-        ws_logger.debug(f"Starting Try")
-        ws_logger.debug(f"WS Message: {ws}")
         async for msg in ws:
-            #ws_logger.debug(f"Message type {msg.type}")
             if msg.type == WSMsgType.TEXT:
                 try:
-                    #ws_logger.debug(f"Message type is text")
                     data = json.loads(msg.data)
-                    #ws_logger.debug(f"Message is: {data}")
                     ws_logger.debug(f"New WS event {data.get('event')} for portid {port}")
 
                     if data.get('event') == 'pusher:ping':
                         ws_logger.info(f'Received pusher ping on client {data}')
                         channel_name = data.get('data', {}).get('channel')
-                        await send_message('pusher:pong', '{}', channel_name) #settings.mac1.lower())
-
+                        await send_message('pusher:pong', '{}', channel_name)
                     elif data.get('event') == 'pusher:subscribe':
                         channel_name = data.get('data', {}).get('channel')
                         ws_logger.info(f"Received subscribe request for channel {channel_name}")
                         channels[channel_name] = ws
                         ws_connected[channel_name] = True
-
-                        await send_message('pusher_internal:subscription_succeeded', '{}', channel_name) #settings.mac1.lower())
+                        await send_message('pusher_internal:subscription_succeeded', '{}', channel_name)
                         online[channel_name] = False
                         sm[channel_name] = 0
-
                     else:
-                        ws_logger.error('I dont know how to handle this event.')
-
+                        ws_logger.error(f'I dont know how to handle this event: {data}')
                 except Exception as e:
                     ws_logger.error(f"Error parsing WS message: {e}")
-
             elif msg.type == WSMsgType.ERROR:
                 ws_logger.error(f'ws connection closed with exception {ws.exception()}')
-
     finally:
-        #ws_logger.debug(f"Try Failed....")
         clients.remove(ws)
-        # Remove from channels if present
         for ch, socket in list(channels.items()):
             if socket == ws:
                 del channels[ch]
         ws_logger.info('Websocket connection closed')
-
     return ws
 
 async def watchdog_loop(remote_id):
