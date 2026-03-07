@@ -482,16 +482,17 @@ async def handle_submit(request):
 
     # Need fix multi mac address
     #if remote_id == 'ffffffffffff' or remote_id == settings.mac1.lower():
-    logger.info(f"remoteID ({remote_id})")
+    logger.debug(f"remoteID ({remote_id})")
     if remote_id in valveSettings.controllerMac:
         logger.debug(f"remoteID ({remote_id}) in controllerMac")
-        logger.debug(f"Binstate2 : {bin_state.hex(' ')}")
         update_states(bin_state, remote_id) # update to multi device
-        if connection_state[remote_id] == 0:
-            online[remote_id] = True #need to change to support multi device
-            logger.info(f"Device online ({remote_id})")
-        else:
-            logger.info(f"Device not online ({remote_id})")
+        # this part doed not make sence in current form
+        connection = connection_state[remote_id]
+        for con in connection:
+            if connection[con] == 0:
+                logger.info(f"Valve {con}  online with controller ({remote_id})")
+            else:
+                logger.info(f"Valve {con} offline with controller ({remote_id})")
     elif remote_id == '000000000000':
         pass
     else:
