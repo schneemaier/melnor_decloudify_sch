@@ -400,10 +400,10 @@ async def handle_submit(request):
         # update for multi controller
         time_stamp[remote_id] = remote_stamp[remote_id]
         logger.debug(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
-        try:
+        if remote_id in sm:
             if sm[remote_id] < 11:
                 update_states(bin_state, remote_id)
-        except Exception as e:
+        else:
             id_hash = '0000000000'
 
     # First message from device check (id_hash is checked against '0000000000' etc)
@@ -571,6 +571,7 @@ async def timestamp_loop(remote_id):
     minutes_of_day = now.hour * 60 + now.minute
     time_stamp[remote_id] = minutes_of_day
     await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
+    logger.debug(f"Message sent: {datetime.now().second}")
     while True:
         await asyncio.sleep(120)
         now = datetime.now()
