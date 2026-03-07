@@ -100,7 +100,11 @@ def update_states(bin_state, remote_id):
         if int(unit[b], 16) != 0:
             valve = [0] * 8
             for i in range(8):
-                valve[i] = (button[b] >> i) & 1
+                if reported_valves[remote_id][unit[b]][i] == 0 and (button[b] >> i) & 1:
+                    valve[i] = 60
+                elif not (button[b] >> i) & 1:
+                    valve[i] = 0
+                #valve[i] = (button[b] >> i) & 1
             valves[unit[b]] = valve
     reported_valves[remote_id] = valves
     logger.info(f"BUTTONS: {reported_valves[remote_id]}")
@@ -220,6 +224,7 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
 async def msg_sched_day(day, channel):
     global channels
     # read and send the program to the controller
+
     buffer = bytearray(308) # 2 * ( 2bytes valve ID + 4 * 38 bytes for valve schedule)
     if channel in valveSettings.valveUnits:
         unit = 0
@@ -306,7 +311,8 @@ async def check_timeout(remote_id):
             for i in range(len(valves[vid])):
                 t = int(valve[i])
                 if t > 0:
-                    dbg += f"V{i}:ON  "
+                    dbg += f"V{i}:{valve[i]}  " #ON
+                    reported_valves[remote_id][vid][i] - 1
                 else:
                     dbg += f"V{i}:OFF "
             logger.debug(f"{remote_id} VALVES {dbg}")
