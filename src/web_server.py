@@ -36,6 +36,7 @@ connection_state = {}
 battery_percent = {}
 sm = {}
 iv = {}
+tv = {}
 
 bin_fields = {
     'CONTROLLER_ID': 0,
@@ -361,7 +362,7 @@ async def handle_rest(request):
     return web.json_response({"status": "OK", "msg": "value set to 0."})
 
 async def handle_submit(request):
-    global online, sm, iv, time_stamp, remote_stamp
+    global online, sm, iv, tv, time_stamp, remote_stamp
 
     # Extract idhash from query string manually because aiohttp might interpret it differently?
     # Original: /submit/?idhash=xxxx&message=<base64>
@@ -430,13 +431,18 @@ async def handle_submit(request):
         #while datetime.now().second > 5:
         #    logger.debug(f'Waiting for time: {datetime.now().second}')
         #    await asyncio.sleep(1)
-        now = datetime.now()
-        minutes_of_day = now.hour * 60 + now.minute
-        time_stamp[remote_id] = minutes_of_day
-        while datetime.now().second < 50:
-            time.sleep(1)
-            logger.debug(f"seconds: {datetime.now().second}")
-        await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
+
+        #now = datetime.now()
+        #minutes_of_day = now.hour * 60 + now.minute
+        #time_stamp[remote_id] = minutes_of_day
+        #while datetime.now().second < 50:
+        #    time.sleep(1)
+        #    logger.debug(f"seconds: {datetime.now().second}")
+        #await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
+        if remote_id in tv:
+            logger.info(f"canceling time tasj for {remote_id}")
+            tv[remote_id].cancel()
+        tv[remote_id] = asyncio.create_task(timestamp_loop(remote_id))
         sm[remote_id] += 1
         return web.Response(text='OK')
 
@@ -556,6 +562,17 @@ async def websocket_handler(request):
                 del channels[ch]
         ws_logger.info('Websocket connection closed')
     return ws
+
+async def timestamp_loop(remote_id):
+    while True:
+        now = datetime.now()
+        while datetime.now().second < 50:
+            time.sleep(1)
+            logger.debug(f"seconds: {datetime.now().second}")
+        minutes_of_day = now.hour * 60 + now.minute
+        time_stamp[remote_id] = minutes_of_day
+        await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
+        await asyncio.sleep(3600)
 
 async def watchdog_loop(remote_id):
     while True:
