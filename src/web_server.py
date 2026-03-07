@@ -4,6 +4,7 @@ import base64
 import struct
 import logging
 import asyncio
+import time
 #from calendar import weekday
 from datetime import datetime
 #import sys
@@ -434,7 +435,7 @@ async def handle_submit(request):
         time_stamp[remote_id] = minutes_of_day
         while datetime.now().second < 50:
             time.sleep(1)
-            logger.debug(f"seconds: {datetime.now().second}"
+            logger.debug(f"seconds: {datetime.now().second}")
         await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
         sm[remote_id] += 1
         return web.Response(text='OK')
