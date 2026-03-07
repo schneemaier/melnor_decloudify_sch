@@ -366,12 +366,11 @@ async def handle_submit(request):
 
     # Extract idhash from query string manually because aiohttp might interpret it differently?
     # Original: /submit/?idhash=xxxx&message=<base64>
-    logger.info(f"Submit.")
     id_hash = request.query.get('idhash', '').replace("'", "")
     message = request.query.get('message', '')
 
     bin_state = None
-    logger.info(f"Device sent: {message}.")
+    logger.debug(f'Submit! Device sent: {message}.')
     if message.endswith('ack--null'):
         ack_type = message.replace('ascii--', '').replace('--ack--null', '')
         bin_state = bytearray(4)
@@ -385,9 +384,9 @@ async def handle_submit(request):
         padded_message = message + '=' * (-len(message) % 4)
         try:
             bin_state = base64.b64decode(padded_message)
-            logger.debug(f"Binstate: {bin_state.hex(' ')}")
+            logger.debug(f'Binstate: {bin_state.hex(' ')}')
         except Exception as e:
-            logger.error(f"Error decoding base64 message: {e}")
+            logger.error(f'Error decoding base64 message: {e}')
             return web.Response(text='OK')
 
     # Parse remoteId (MAC address)
@@ -399,17 +398,17 @@ async def handle_submit(request):
         remote_stamp[remote_id] = bin_state[8] + (bin_state[9] * 256)
         # update for multi controller
         time_stamp[remote_id] = remote_stamp[remote_id]
-        logger.debug(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
+        logger.debug(f'Time update from {remote_id}, time {remote_stamp[remote_id]}')
         if remote_id in sm:
             if sm[remote_id] < 11:
                 update_states(bin_state, remote_id)
         else:
-            #id_hash = '0000000000'
-            return web.HTTPForbidden()
+            logger.debug(f'Not in sync {remote_id}')
+            return web.Response(text='OK')
 
     # First message from device check (id_hash is checked against '0000000000' etc)
     if id_hash == '0000000000' or id_hash == 'ffffffffff':
-        logger.info(f"Received submit for channel {remote_id}, sending hashkey")
+        logger.debug(f'Received submit for channel {remote_id}, sending hashkey')
         await msg_hashkey(remote_id, remote_id)
         hashkey[remote_id] = remote_id
         # setup state machine
@@ -417,8 +416,7 @@ async def handle_submit(request):
         return web.Response(text='OK')
 
     if remote_id not in ws_connected  or not ws_connected[remote_id]:
-        ws_logger.error('Device not in sync. Please reset or wait.')
-        ws_logger.error(f"remoteid: {remote_id}, WS_connected: {ws_connected}")
+        ws_logger.error(f'Device not in sync. Please reset or wait. Remoteid: {remote_id}, WS_connected: {ws_connected}')
         sm[remote_id] = 0
         return web.Response(text='OK')
 
@@ -431,19 +429,8 @@ async def handle_submit(request):
         return web.Response(text='OK')
 
     if sm[remote_id] == 7:
-        #while datetime.now().second > 5:
-        #    logger.debug(f'Waiting for time: {datetime.now().second}')
-        #    await asyncio.sleep(1)
-
-        #now = datetime.now()
-        #minutes_of_day = now.hour * 60 + now.minute
-        #time_stamp[remote_id] = minutes_of_day
-        #while datetime.now().second < 50:
-        #    time.sleep(1)
-        #    logger.debug(f"seconds: {datetime.now().second}")
-        #await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
         if remote_id in tv:
-            logger.info(f"canceling time task for {remote_id}")
+            logger.debug(f'Canceling time task for {remote_id}')
             tv[remote_id].cancel()
         tv[remote_id] = asyncio.create_task(timestamp_loop(remote_id))
         sm[remote_id] += 1
@@ -465,7 +452,7 @@ async def handle_submit(request):
     if sm[remote_id] == 10:
         # iv has to be per remote id
         if remote_id in iv:
-            logger.info(f"canceling {remote_id}")
+            logger.info(f'Canceling watchdog task {remote_id}')
             iv[remote_id].cancel()
         # Start watchdog loop
         iv[remote_id] = asyncio.create_task(watchdog_loop(remote_id))
@@ -484,24 +471,21 @@ async def handle_submit(request):
         logger.debug('Device sent timestampevnt ack')
         return web.Response(text='OK')
 
-    # Need fix multi mac address
-    #if remote_id == 'ffffffffffff' or remote_id == settings.mac1.lower():
-    logger.debug(f"remoteID ({remote_id})")
     if remote_id in valveSettings.controllerMac:
-        logger.debug(f"remoteID ({remote_id}) in controllerMac")
+        logger.debug(f'remoteID ({remote_id}) in controllerMac')
         update_states(bin_state, remote_id) # update to multi device
         # this part doed not make sence in current form
         connection = connection_state[remote_id]
         for con in connection:
             if connection[con] == 0:
-                logger.info(f"Valve {con}  online with controller ({remote_id})")
+                logger.info(f'Valve {con}  online with controller ({remote_id})')
             else:
-                logger.info(f"Valve {con} offline with controller ({remote_id})")
+                logger.info(f'Valve {con} offline with controller ({remote_id})')
     elif remote_id == '000000000000':
         pass
     else:
         # online[remote_id] = True
-        logger.info(f"Device in unknown state {remote_id}")
+        logger.info(f'Device in unknown state {remote_id}')
 
     return web.Response(text='OK')
 
