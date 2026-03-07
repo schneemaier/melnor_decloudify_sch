@@ -395,14 +395,16 @@ async def handle_submit(request):
         remote_id = ''.join(f'{b:02x}' for b in reversed(bin_state[0:6]))
     else:
         remote_id = id_hash[:12] # use the hash if message is ascii--hashkeyevnt--ack--null otherwise cycle fails
-
     if len(bin_state) > 10:
         remote_stamp[remote_id] = bin_state[8] + (bin_state[9] * 256)
         # update for multi controller
         time_stamp[remote_id] = remote_stamp[remote_id]
         logger.debug(f"Time update from {remote_id}, time {remote_stamp[remote_id]}")
-        if sm[remote_id] < 11:
-            update_states(bin_state, remote_id)
+        try:
+            if sm[remote_id] < 11:
+                update_states(bin_state, remote_id)
+        finally:
+            id_hash = '0000000000'
 
     # First message from device check (id_hash is checked against '0000000000' etc)
     if id_hash == '0000000000' or id_hash == 'ffffffffff':
@@ -497,7 +499,7 @@ async def handle_submit(request):
     elif remote_id == '000000000000':
         pass
     else:
-        online[remote_id] = True
+        # online[remote_id] = True
         logger.info(f"Device in unknown state {remote_id}")
 
     return web.Response(text='OK')
