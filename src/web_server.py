@@ -100,9 +100,14 @@ def update_states(bin_state, remote_id):
         if int(unit[b], 16) != 0:
             valve = [0] * 8
             for i in range(8):
-                if reported_valves[remote_id][unit[b]][i] == 0 and (button[b] >> i) & 1:
+                if remote_id in reported_valves:
+                    if reported_valves[remote_id][unit[b]][i] == 0 and (button[b] >> i) & 1:
+                        valve[i] = 60
+                    elif not (button[b] >> i) & 1:
+                        valve[i] = 0
+                elif (button[b] >> i) & 1:
                     valve[i] = 60
-                elif not (button[b] >> i) & 1:
+                else:
                     valve[i] = 0
                 #valve[i] = (button[b] >> i) & 1
             valves[unit[b]] = valve
