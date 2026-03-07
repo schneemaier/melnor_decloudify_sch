@@ -186,7 +186,7 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
     buffer = bytearray(20)
 
     if mode == "start":
-        logger.debug("Start")
+        logger.debug("Manual settings for Start")
         struct.pack_into('<H', buffer, 0, int(valveSettings.valveUnits[channel_arg][0],16))
         struct.pack_into('<H', buffer, 10, int(valveSettings.valveUnits[channel_arg][1],16))
         #offtime = time_stamp[channel_arg]+1
