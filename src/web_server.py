@@ -570,14 +570,16 @@ async def timestamp_loop(remote_id):
     time_stamp[remote_id] = minutes_of_day
     await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
     while True:
+        await asyncio.sleep(120)
         now = datetime.now()
-        while datetime.now().second != 0:
-            await asyncio.sleep(1)
-            logger.debug(f"seconds: {datetime.now().second}")
+        await asyncio.sleep(60 - await asyncio.sleep(1))
+        #while datetime.now().second != 0:
+        #    await asyncio.sleep(1)
+        #    logger.debug(f"seconds: {datetime.now().second}")
         minutes_of_day = now.hour * 60 + now.minute
         time_stamp[remote_id] = minutes_of_day
         await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
-        await asyncio.sleep(120)
+
 
 async def watchdog_loop(remote_id):
     while True:
