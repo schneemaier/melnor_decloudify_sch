@@ -191,11 +191,11 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
         logger.debug("Manual settings for Start")
         struct.pack_into('<H', buffer, 0, int(valveSettings.valveUnits[channel_arg][0],16))
         struct.pack_into('<H', buffer, 10, int(valveSettings.valveUnits[channel_arg][1],16))
-        #offtime = time_stamp[channel_arg]+1
-        #logger.debug(f"Offtime: {offtime}")
-        #for i in range(2):
-        #    for j in range(4):
-        #        struct.pack_into('<H', buffer, 2+2*j+i*10, int(offtime))
+        offtime = time_stamp[channel_arg]
+        logger.debug(f"Offtime: {offtime}")
+        for i in range(2):
+            for j in range(4):
+                struct.pack_into('<H', buffer, 2+2*j+i*10, int(offtime))
     elif mode == "single" and valveUnit is not None and valve is not None and time is not None:
         logger.debug("Single valve")
     else:
@@ -556,18 +556,13 @@ async def timestamp_loop(remote_id):
     minutes_of_day = now.hour * 60 + now.minute
     time_stamp[remote_id] = minutes_of_day
     await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
-    logger.debug(f'Message sent: {datetime.now().second}')
     while True:
-        logger.debug('Sleep started!')
-        await asyncio.sleep(120 - datetime.now().second)
+        # send time syncronization every 30 minutes
+        await asyncio.sleep(1800 - datetime.now().second)
         now = datetime.now()
-        #while datetime.now().second != 0:
-        #    await asyncio.sleep(1)
-        #    logger.debug(f"seconds: {datetime.now().second}")
         minutes_of_day = now.hour * 60 + now.minute
         time_stamp[remote_id] = minutes_of_day
         await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
-        logger.debug(f'Message sent: {datetime.now().second}')
 
 
 async def watchdog_loop(remote_id):
