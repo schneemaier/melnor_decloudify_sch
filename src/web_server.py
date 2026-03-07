@@ -566,13 +566,13 @@ async def websocket_handler(request):
 async def timestamp_loop(remote_id):
     while True:
         now = datetime.now()
-        while datetime.now().second < 50:
+        while datetime.now().second > 10:
             time.sleep(1)
             logger.debug(f"seconds: {datetime.now().second}")
         minutes_of_day = now.hour * 60 + now.minute
         time_stamp[remote_id] = minutes_of_day
         await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
-        await asyncio.sleep(3600)
+        await asyncio.sleep(120)
 
 async def watchdog_loop(remote_id):
     while True:
