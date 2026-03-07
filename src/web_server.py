@@ -404,7 +404,7 @@ async def handle_submit(request):
             if sm[remote_id] < 11:
                 update_states(bin_state, remote_id)
         else:
-            id_hash = '0000000000'
+            #id_hash = '0000000000'
             return web.HTTPForbidden()
 
     # First message from device check (id_hash is checked against '0000000000' etc)
