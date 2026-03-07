@@ -206,7 +206,7 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
         logger.debug(f"Offtime: {offtime}")
         for i in range(2):
             for j in range(4):
-                if reported_valves[channel_arg][valveSettings.valveUnits[channel_arg][i]][j] != 0:
+                if reported_valves[channel_arg][valveSettings.valveUnits[channel_arg][i].lower()][j] != 0:
                     struct.pack_into('<H', buffer, 2 + 2 * j + i * 10, int(offtime)+1)
                 else:
                     struct.pack_into('<H', buffer, 2+2*j+i*10, int(offtime))
