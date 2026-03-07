@@ -106,8 +106,10 @@ def update_states(bin_state, remote_id):
                     elif not (button[b] >> i) & 1:
                         valve[i] = 0
                 elif (button[b] >> i) & 1:
+                    logger.debug(f'bt1 {button[b]} i {i}')
                     valve[i] = 60
                 else:
+                    logger.debug(f'bt0 {button[b]} i {i}')
                     valve[i] = 0
                 #valve[i] = (button[b] >> i) & 1
             valves[unit[b]] = valve
@@ -317,7 +319,7 @@ async def check_timeout(remote_id):
                 t = int(valve[i])
                 if t > 0:
                     dbg += f"V{i}:{valve[i]}  " #ON
-                    reported_valves[remote_id][vid][i] - 1
+                    reported_valves[remote_id][vid][i] = reported_valves[remote_id][vid][i] - 1
                 else:
                     dbg += f"V{i}:OFF "
             logger.debug(f"{remote_id} VALVES {dbg}")
