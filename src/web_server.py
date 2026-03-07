@@ -174,6 +174,8 @@ async def send_long_message(event, data, channel_id=None):
     struct.pack_into('<H', buffer, 4, data)
 
     b64_data = base64.b64encode(buffer).decode('utf-8')
+    # replace + with - for melnor b64 version
+    b64_data = b64_data.replace("+", "-")
 
     payload = json.dumps({
         'event': event,
@@ -220,6 +222,7 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
 
     # The original code wraps the base64 string in quotes
     b64_data = f'"{base64.b64encode(buffer).decode("utf-8")}"'
+    b64_data = b64_data.replace("+", "-")
 
     ev = {
         'event': 'manual_sched',
@@ -261,7 +264,7 @@ async def msg_sched_day(day, channel):
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 6 + v * 38 +c * 6, eon)
                     struct.pack_into('<H', buffer, 0 + unit * 154 + 7 + v * 38 +c * 6, eof)
             unit += 1
-    b64_data = base64.b64encode(buffer).decode('utf-8')
+    b64_data = base64.b64encode(buffer).decode('utf-8').replace("-", "+")
     #logger.info(f"String: {buffer.hex(' ')}")
     #logger.info(f"Base64 string: {b64_data}")
     payload = json.dumps({
@@ -285,7 +288,7 @@ async def msg_timestamp(minutes_of_day, day_of_week, channel=None):
         struct.pack_into('b', b, 2, day_of_week)
         logger.info(f"Timestamp for day: {day_of_week}, {minutes_of_day} Array: {b.hex(' ')}")
 
-        await send_message('timestamp', base64.b64encode(b).decode('utf-8'), channel)
+        await send_message('timestamp', base64.b64encode(b).decode('utf-8').replace("-", "+"), channel)
 
 async def msg_hashkey(key, channel):
     await send_message('hash_key', f'"{key}"', channel)
@@ -397,7 +400,9 @@ async def handle_submit(request):
     else:
         # Some padding might be needed for base64 decoding if not valid
         # Python's base64 module is strict about padding
-        padded_message = message + '=' * (-len(message) % 4)
+        padded_message = message.replace("-", "+") + '=' * (-len(message) % 4).replace
+        # have to replace - with + to make it valid base64
+
         try:
             bin_state = base64.b64decode(padded_message)
             logger.debug(f'Binstate: {bin_state.hex(' ')}')
