@@ -404,7 +404,7 @@ async def handle_submit(request):
             if sm[remote_id] < 11:
                 update_states(bin_state, remote_id)
         else:
-            sm[remote_id] = 0
+            id_hash = '0000000000'
 
     # First message from device check (id_hash is checked against '0000000000' etc)
     if id_hash == '0000000000' or id_hash == 'ffffffffff':
