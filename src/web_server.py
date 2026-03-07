@@ -400,11 +400,11 @@ async def handle_submit(request):
     else:
         # Some padding might be needed for base64 decoding if not valid
         # Python's base64 module is strict about padding
-        padded_message = message.replace("-", "+") + '=' * (-len(message) % 4).replace
+        padded_message = message + '=' * (-len(message) % 4).replace
         # have to replace - with + to make it valid base64
 
         try:
-            bin_state = base64.b64decode(padded_message)
+            bin_state = base64.b64decode(padded_message.replace("-", "+"))
             logger.debug(f'Binstate: {bin_state.hex(' ')}')
         except Exception as e:
             logger.error(f'Error decoding base64 message: {e}')
