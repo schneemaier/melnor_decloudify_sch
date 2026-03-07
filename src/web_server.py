@@ -192,7 +192,7 @@ async def send_long_message(event, data, channel_id=None):
 
 
 async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, time = None):
-    global time_stamp
+    global time_stamp, reported_valves
     logger.info(f"Manual schedule for {channel_arg} valveUnit {valveUnit} valve {valve} time {time}")
     dbg = ''
 
@@ -206,7 +206,10 @@ async def msg_manual_sched(channel_arg, mode, valveUnit = None, valve = None, ti
         logger.debug(f"Offtime: {offtime}")
         for i in range(2):
             for j in range(4):
-                struct.pack_into('<H', buffer, 2+2*j+i*10, int(offtime))
+                if reported_valves[channel_arg][i][j] != 0:
+                    struct.pack_into('<H', buffer, 2 + 2 * j + i * 10, int(offtime)+1)
+                else:
+                    struct.pack_into('<H', buffer, 2+2*j+i*10, int(offtime))
     elif mode == "single" and valveUnit is not None and valve is not None and time is not None:
         logger.debug("Single valve")
     else:
