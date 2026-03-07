@@ -484,7 +484,7 @@ async def handle_submit(request):
     elif remote_id == '000000000000':
         pass
     else:
-        # online[remote_id] = True
+        # online[remote_id] = True 1
         logger.info(f'Device in unknown state {remote_id}')
 
     return web.Response(text='OK')
