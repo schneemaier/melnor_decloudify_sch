@@ -403,7 +403,7 @@ async def handle_submit(request):
         try:
             if sm[remote_id] < 11:
                 update_states(bin_state, remote_id)
-        except:
+        except Exception as e:
             id_hash = '0000000000'
 
     # First message from device check (id_hash is checked against '0000000000' etc)
