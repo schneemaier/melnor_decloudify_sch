@@ -396,7 +396,7 @@ async def handle_submit(request):
     else:
         remote_id = id_hash[:12] # use the hash if message is ascii--hashkeyevnt--ack--null otherwise cycle fails
 
-    if len(bin_state) >= 10:
+    if len(bin_state) > 10:
         remote_stamp[remote_id] = bin_state[8] + (bin_state[9] * 256)
         # update for multi controller
         time_stamp[remote_id] = remote_stamp[remote_id]
