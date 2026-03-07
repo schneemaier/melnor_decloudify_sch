@@ -440,7 +440,7 @@ async def handle_submit(request):
         #    logger.debug(f"seconds: {datetime.now().second}")
         #await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
         if remote_id in tv:
-            logger.info(f"canceling time tasj for {remote_id}")
+            logger.info(f"canceling time task for {remote_id}")
             tv[remote_id].cancel()
         tv[remote_id] = asyncio.create_task(timestamp_loop(remote_id))
         sm[remote_id] += 1
@@ -564,9 +564,13 @@ async def websocket_handler(request):
     return ws
 
 async def timestamp_loop(remote_id):
+    global time_stamp
+    minutes_of_day = now.hour * 60 + now.minute
+    time_stamp[remote_id] = minutes_of_day
+    await msg_timestamp(minutes_of_day, now.weekday(), remote_id
     while True:
         now = datetime.now()
-        while datetime.now().second > 0:
+        while datetime.now().second != 0:
             time.sleep(1)
             logger.debug(f"seconds: {datetime.now().second}")
         minutes_of_day = now.hour * 60 + now.minute
