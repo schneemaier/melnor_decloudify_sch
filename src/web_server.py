@@ -566,7 +566,7 @@ async def websocket_handler(request):
 async def timestamp_loop(remote_id):
     while True:
         now = datetime.now()
-        while datetime.now().second > 10:
+        while datetime.now().second > 0:
             time.sleep(1)
             logger.debug(f"seconds: {datetime.now().second}")
         minutes_of_day = now.hour * 60 + now.minute
