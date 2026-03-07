@@ -101,7 +101,6 @@ def update_states(bin_state, remote_id):
             valve = [0] * 8
             for i in range(8):
                 if remote_id in reported_valves:
-                    logger.debug(f'')
                     if reported_valves[remote_id][unit[b]][i] == 0 and (button[b] >> i) & 1:
                         valve[i] = 60
                     elif not (button[b] >> i) & 1:
@@ -109,10 +108,8 @@ def update_states(bin_state, remote_id):
                     else:
                         valve[i] = reported_valves[remote_id][unit[b]][i]
                 elif (button[b] >> i) & 1:
-                    logger.debug(f'bt1 {button[b]} i {i}')
                     valve[i] = 60
                 else:
-                    logger.debug(f'bt0 {button[b]} i {i}')
                     valve[i] = 0
                 #valve[i] = (button[b] >> i) & 1
             valves[unit[b]] = valve
