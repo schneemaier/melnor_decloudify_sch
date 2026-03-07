@@ -567,7 +567,7 @@ async def timestamp_loop(remote_id):
     global time_stamp
     minutes_of_day = now.hour * 60 + now.minute
     time_stamp[remote_id] = minutes_of_day
-    await msg_timestamp(minutes_of_day, now.weekday(), remote_id
+    await msg_timestamp(minutes_of_day, now.weekday(), remote_id)
     while True:
         now = datetime.now()
         while datetime.now().second != 0:
