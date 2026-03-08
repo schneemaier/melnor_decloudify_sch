@@ -495,8 +495,8 @@ async def handle_submit(request):
 
     if message.startswith('ascii--timestampevnt--'):
         logger.debug('Device sent timestampevnt ack')
-        # unit accepted the time, lest set it timestamp to what was sent. Otherwise it would take ~40 minutes to have
-        # the correct time
+        # unit accepted the time, lest set it timestamp to what was sent. Otherwise it would
+        # take ~40 minutes to have the correct time
         remote_stamp[remote_id] = time_stamp[remote_id]
         return web.Response(text='OK')
 
