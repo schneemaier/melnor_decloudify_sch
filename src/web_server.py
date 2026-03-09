@@ -572,11 +572,18 @@ async def websocket_handler(request):
             elif msg.type == WSMsgType.ERROR:
                 ws_logger.error(f'ws connection closed with exception {ws.exception()}')
     finally:
+        # may require other cleanup (time stamps etc)
         clients.remove(ws)
         for ch, socket in list(channels.items()):
             if socket == ws:
                 del channels[ch]
-        ws_logger.info('Websocket connection closed')
+                iv[ch].cancel()
+                ws_connected[ch] = False
+                sm[ch] = 0
+                tv[ch].cancel()
+
+
+        ws_logger.info(f'Websocket connection closed for {ch}')
     return ws
 
 async def timestamp_loop(remote_id):
