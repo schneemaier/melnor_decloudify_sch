@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Valve Settings Editor</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.3/jsoneditor.min.css" rel="stylesheet" type="text/css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.3/jsoneditor.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #jsoneditor {
+      width: 100%;
+      height: 600px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Valve Settings Editor</h1>
+  <div id="jsoneditor"></div>
+  <button id="saveBtn">Save Settings</button>
+  <span id="status" style="margin-left: 10px; color: green;"></span>
+
+  <script>
+    const container = document.getElementById("jsoneditor");
+    const options = {
+      mode: 'tree',
+      modes: ['code', 'form', 'text', 'tree', 'view'],
+      onError: function (err) {
+        alert(err.toString());
+      }
+    };
+    const editor = new JSONEditor(container, options);
+
+    // Fetch settings on load
+    fetch('/api/settings')
+      .then(response => response.json())
+      .then(data => {
+        editor.set(data);
+      })
+      .catch(error => {
+        console.error('Error fetching settings:', error);
+        document.getElementById('status').innerText = 'Error loading settings.';
+        document.getElementById('status').style.color = 'red';
+      });
+
+    // Save settings
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      try {
+        const updatedJson = editor.get();
+        fetch('/api/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updatedJson)
+        })
+        .then(response => {
+          if (response.ok) {
+            document.getElementById('status').innerText = 'Settings saved successfully!';
+            document.getElementById('status').style.color = 'green';
+            setTimeout(() => { document.getElementById('status').innerText = ''; }, 3000);
+          } else {
+            throw new Error('Network response was not ok.');
+          }
+        })
+        .catch(error => {
+          console.error('Error saving settings:', error);
+          document.getElementById('status').innerText = 'Error saving settings.';
+          document.getElementById('status').style.color = 'red';
+        });
+      } catch (err) {
+        alert('Invalid JSON: ' + err.toString());
+      }
+    });
+  </script>
+</body>
+</html>
